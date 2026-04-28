@@ -1,0 +1,14 @@
+# BMad and Agent configurations
+_bmad/
+.agents/
+.claude/
+.cline/
+
+# Keep BMad outputs
+!_bmad-output/
+
+# Typical ignores
+node_modules/
+dist/
+build/
+.env
