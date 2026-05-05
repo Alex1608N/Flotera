@@ -1,14 +1,15 @@
-# BMad and Agent configurations
+# BMad and Agent configurations - Hidden for Alex's clean repo
 _bmad/
+_bmad-output/
 .agents/
 .claude/
 .cline/
-
-# Keep BMad outputs
-!_bmad-output/
+.geminiignore
 
 # Typical ignores
 node_modules/
 dist/
 build/
 .env
+.DS_Store
+*.log
