@@ -8,9 +8,10 @@ interface VehicleCardProps {
   onEdit: (vehicle: Vehicle) => void;
   onDelete: (id: number) => void;
   onShowIncidents?: (vehicle: Vehicle) => void;
+  onReportIncident?: (vehicle: Vehicle) => void;
 }
 
-export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents }: VehicleCardProps) {
+export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents, onReportIncident }: VehicleCardProps) {
   const queryClient = useQueryClient();
 
   const getDaysRemaining = (dateStr?: string) => {
@@ -36,18 +37,6 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
     }
   });
 
-  const incidentMutation = useMutation({
-    mutationFn: ({ description, file }: { description: string; file?: File }) => 
-      vehicleApi.reportIncident(vehicle.id, description, file),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vehicles'] });
-      alert('Incidentul a fost raportat cu succes.');
-    },
-    onError: (error: Error) => {
-      alert(error.message || 'Eroare la raportarea incidentului.');
-    }
-  });
-
   const handleUpdateOdometer = (e: React.MouseEvent) => {
     e.stopPropagation();
     const newKmStr = window.prompt(`Actualizează kilometrajul pentru ${vehicle.licensePlate} (Actual: ${vehicle.odometer} km):`, vehicle.odometer.toString());
@@ -55,38 +44,6 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
       const newKm = parseInt(newKmStr);
       if (!isNaN(newKm)) {
         odometerMutation.mutate(newKm);
-      }
-    }
-  };
-
-  const handleReportIncident = (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    // Creăm un input file temporar pentru a permite selecția unei imagini
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-
-    fileInput.onchange = (event: any) => {
-      const file = event.target.files?.[0];
-      const description = window.prompt(`Raportează o problemă pentru ${vehicle.licensePlate} ${file ? '(cu imagine)' : ''}:`);
-
-      if (description) {
-        incidentMutation.mutate({ description, file });
-      }
-    };
-
-    // Dacă utilizatorul anulează selecția fișierului, putem totuși cere doar descrierea
-    const description = window.prompt(`Raportează o problemă pentru ${vehicle.licensePlate}. Doriți să adăugați și o imagine? (OK pentru a alege imaginea, Cancel pentru doar text)`);
-
-    if (description === null) return; // Utilizatorul a apăsat Cancel la descriere
-
-    if (window.confirm("Doriți să atașați o fotografie incidentului?")) {
-      fileInput.click();
-    } else {
-      const finalDesc = window.prompt(`Descrierea incidentului pentru ${vehicle.licensePlate}:`);
-      if (finalDesc) {
-        incidentMutation.mutate({ description: finalDesc });
       }
     }
   };
@@ -145,7 +102,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
         {/* Action Overlay (Appears on Hover) */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-end p-3 gap-2">
           <button 
-            onClick={handleReportIncident}
+            onClick={(e) => { e.stopPropagation(); onReportIncident?.(vehicle); }}
             className="p-2 bg-white/20 hover:bg-orange-500 text-white rounded-lg backdrop-blur-sm transition-all"
             title="Raportează problemă"
           >

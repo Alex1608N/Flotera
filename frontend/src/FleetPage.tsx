@@ -8,9 +8,10 @@ interface FleetPageProps {
   onEdit: (vehicle: Vehicle) => void;
   onOpenAdd: () => void;
   onShowIncidents: (vehicle: Vehicle) => void;
+  onReportIncident: (vehicle: Vehicle) => void;
 }
 
-export default function FleetPage({ onEdit, onOpenAdd, onShowIncidents }: FleetPageProps) {
+export default function FleetPage({ onEdit, onOpenAdd, onShowIncidents, onReportIncident }: FleetPageProps) {
   const queryClient = useQueryClient();
 
   const { data: vehicles, isLoading, error } = useQuery({
@@ -75,6 +76,7 @@ export default function FleetPage({ onEdit, onOpenAdd, onShowIncidents }: FleetP
               onEdit={onEdit}
               onDelete={handleDelete}
               onShowIncidents={onShowIncidents}
+              onReportIncident={onReportIncident}
             />
           ))}
         </div>

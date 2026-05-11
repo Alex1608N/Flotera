@@ -8,14 +8,17 @@ import DashboardPage from './DashboardPage'
 import NotificationsPage from './NotificationsPage'
 import VehicleForm from './components/VehicleForm'
 import IncidentList from './components/IncidentList'
+import IncidentForm from './components/IncidentForm'
 import type { Vehicle } from './api/vehicleApi'
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isIncidentFormOpen, setIsIncidentFormOpen] = useState(false);
   const [vehicleToEdit, setVehicleToEdit] = useState<Vehicle | null>(null);
   const [incidentVehicle, setIncidentVehicle] = useState<Vehicle | null>(null);
+  const [vehicleForIncidentReport, setVehicleForIncidentReport] = useState<Vehicle | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -49,18 +52,30 @@ function App() {
     setIncidentVehicle(vehicle);
   };
 
+  const handleReportIncident = (vehicle: Vehicle) => {
+    setVehicleForIncidentReport(vehicle);
+    setIsIncidentFormOpen(true);
+  };
+
   return (
     <Layout 
       userEmail={session.user.email ?? ''} 
       currentPage={currentPage} 
       onNavigate={setCurrentPage}
     >
-      {currentPage === 'dashboard' && <DashboardPage onEdit={handleEdit} onShowIncidents={handleShowIncidents} />}
+      {currentPage === 'dashboard' && (
+        <DashboardPage 
+          onEdit={handleEdit} 
+          onShowIncidents={handleShowIncidents} 
+          onReportIncident={handleReportIncident} 
+        />
+      )}
       {currentPage === 'fleet' && (
         <FleetPage 
           onEdit={handleEdit} 
           onOpenAdd={() => { setVehicleToEdit(null); setIsFormOpen(true); }}
           onShowIncidents={handleShowIncidents}
+          onReportIncident={handleReportIncident}
         />
       )}
       {currentPage === 'notifications' && <NotificationsPage onEdit={handleEdit} />}
@@ -69,6 +84,17 @@ function App() {
         <VehicleForm 
           onClose={handleCloseForm} 
           vehicleToEdit={vehicleToEdit} 
+        />
+      )}
+
+      {isIncidentFormOpen && vehicleForIncidentReport && (
+        <IncidentForm
+          vehicleId={vehicleForIncidentReport.id}
+          vehiclePlate={vehicleForIncidentReport.licensePlate}
+          onClose={() => {
+            setIsIncidentFormOpen(false);
+            setVehicleForIncidentReport(null);
+          }}
         />
       )}
 
