@@ -3,17 +3,25 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabaseClient'
 import Login from './Login'
 import Layout from './Layout'
+import FleetPage from './FleetPage'
+import DashboardPage from './DashboardPage'
+import NotificationsPage from './NotificationsPage'
+import VehicleForm from './components/VehicleForm'
+import IncidentList from './components/IncidentList'
+import type { Vehicle } from './api/vehicleApi'
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
+  const [currentPage, setCurrentPage] = useState('dashboard')
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [vehicleToEdit, setVehicleToEdit] = useState<Vehicle | null>(null);
+  const [incidentVehicle, setIncidentVehicle] = useState<Vehicle | null>(null);
 
   useEffect(() => {
-    // Verificăm dacă există deja o sesiune activă (userul e logat anterior)
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
     })
 
-    // Ascultăm schimbările (când se loghează sau dă logout)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -23,38 +31,54 @@ function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  if (!session) {
+  if (!session || !session.user) {
     return <Login />
   }
 
-  // Aici e Dashboard-ul înfășurat în noul Layout
+  const handleEdit = (vehicle: Vehicle) => {
+    setVehicleToEdit(vehicle);
+    setIsFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setVehicleToEdit(null);
+  };
+
+  const handleShowIncidents = (vehicle: Vehicle) => {
+    setIncidentVehicle(vehicle);
+  };
+
   return (
-    <Layout userEmail={session.user.email}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Card de Bun Venit */}
-        <div className="col-span-full bg-gradient-to-r from-blue-600 to-blue-700 p-8 rounded-2xl text-white shadow-lg">
-          <h2 className="text-3xl font-bold">Salutare, {session.user.email?.split('@')[0]}!</h2>
-          <p className="mt-2 text-blue-100 opacity-90">
-            Bine ai revenit în panoul de control al flotei tale. Momentan ai toate sistemele active.
-          </p>
-        </div>
+    <Layout 
+      userEmail={session.user.email ?? ''} 
+      currentPage={currentPage} 
+      onNavigate={setCurrentPage}
+    >
+      {currentPage === 'dashboard' && <DashboardPage onEdit={handleEdit} onShowIncidents={handleShowIncidents} />}
+      {currentPage === 'fleet' && (
+        <FleetPage 
+          onEdit={handleEdit} 
+          onOpenAdd={() => { setVehicleToEdit(null); setIsFormOpen(true); }}
+          onShowIncidents={handleShowIncidents}
+        />
+      )}
+      {currentPage === 'notifications' && <NotificationsPage onEdit={handleEdit} />}
 
-        {/* Card Statistici Rapide (Placeholder pentru Epic 2/3) */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Vehicule Active</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">0</p>
-        </div>
+      {isFormOpen && (
+        <VehicleForm 
+          onClose={handleCloseForm} 
+          vehicleToEdit={vehicleToEdit} 
+        />
+      )}
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Alerte Documente</p>
-          <p className="text-3xl font-bold text-green-600 mt-1">0</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Incidente Raportate</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">0</p>
-        </div>
-      </div>
+      {incidentVehicle && (
+        <IncidentList 
+          vehicleId={incidentVehicle.id} 
+          vehiclePlate={incidentVehicle.licensePlate} 
+          onClose={() => setIncidentVehicle(null)} 
+        />
+      )}
     </Layout>
   )
 }

@@ -1,5 +1,7 @@
 import React from 'react';
 import { supabase } from "./supabaseClient";
+import { useQuery } from '@tanstack/react-query';
+import { vehicleApi } from './api/vehicleApi';
 import { 
   LayoutDashboard, 
   Car, 
@@ -13,15 +15,24 @@ import {
 interface LayoutProps {
   children: React.ReactNode;
   userEmail?: string;
+  currentPage: string;
+  onNavigate: (page: string) => void;
 }
 
-export default function Layout({ children, userEmail }: LayoutProps) {
+export default function Layout({ children, userEmail, currentPage, onNavigate }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
 
+  const { data: vehicles = [] } = useQuery({
+    queryKey: ['vehicles'],
+    queryFn: vehicleApi.getAll
+  });
+
+  const alertCount = vehicles.filter(v => v.status !== 'OK').length;
+
   const navigation = [
-    { name: 'Dashboard', icon: LayoutDashboard, href: '#' },
-    { name: 'Flota Mea', icon: Car, href: '#' },
-    { name: 'Notificări', icon: Bell, href: '#' },
+    { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
+    { id: 'fleet', name: 'Flota Mea', icon: Car },
+    { id: 'notifications', name: 'Notificări', icon: Bell, badge: alertCount },
   ];
 
   return (
@@ -39,16 +50,27 @@ export default function Layout({ children, userEmail }: LayoutProps) {
 
         <nav className="flex-1 px-4 space-y-2">
           {navigation.map((item) => (
-            <a
-              key={item.name}
-              href={item.href}
-              className="flex items-center p-3 rounded-lg hover:bg-blue-600/20 hover:text-blue-400 transition-colors group"
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              className={`w-full flex items-center p-3 rounded-lg transition-colors group ${
+                currentPage === item.id 
+                  ? 'bg-blue-600 text-white' 
+                  : 'hover:bg-blue-600/20 hover:text-blue-400 text-gray-300'
+              }`}
             >
-              <item.icon className="w-6 h-6 shrink-0" />
+              <div className="relative">
+                <item.icon className="w-6 h-6 shrink-0" />
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-slate-900">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
               <span className={`ml-3 font-medium ${!isSidebarOpen && 'hidden'}`}>
                 {item.name}
               </span>
-            </a>
+            </button>
           ))}
         </nav>
 

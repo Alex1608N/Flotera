@@ -15,12 +15,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -36,6 +38,12 @@ class VehicleControllerTest {
 
     @MockitoBean
     private VehicleService vehicleService;
+
+    @MockitoBean
+    private ExpirationEngineService expirationEngineService;
+
+    @MockitoBean
+    private com.example.flotera.incident.IncidentRepository incidentRepository;
 
     @MockitoBean
     private UserRepository userRepository;
@@ -54,7 +62,7 @@ class VehicleControllerTest {
         Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
         vehicle.setId(1L);
 
-        VehicleRequest request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567");
+        VehicleRequest request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", null, null, null);
 
         // Mock security: load user from DB during JWT conversion
         when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
@@ -68,6 +76,25 @@ class VehicleControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.licensePlate").value("B-123-ABC"));
+    }
+
+    @Test
+    void getAllVehicles_ShouldReturnList() throws Exception {
+        // Arrange
+        String ownerId = "owner-id";
+        User owner = new User(ownerId, "owner@test.com", "Owner Name", Role.OWNER);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        vehicle.setId(1L);
+
+        when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
+        when(vehicleService.getVehiclesByOwner(ownerId)).thenReturn(List.of(vehicle));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/vehicles")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_OWNER")).jwt(j -> j.subject(ownerId))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].licensePlate").value("B-123-ABC"));
     }
 
     @Test
@@ -95,7 +122,7 @@ class VehicleControllerTest {
         // Arrange
         String driverId = "driver-id";
         User driver = new User(driverId, "driver@test.com", "Driver Name", Role.DRIVER);
-        VehicleRequest request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567");
+        VehicleRequest request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", null, null, null);
 
         when(userRepository.findById(driverId)).thenReturn(Optional.of(driver));
 
@@ -110,7 +137,7 @@ class VehicleControllerTest {
     @Test
     void createVehicle_ShouldReturnBadRequest_WhenValidationFails() throws Exception {
         // Arrange
-        VehicleRequest invalidRequest = new VehicleRequest("", "", 1800, "too-short");
+        VehicleRequest invalidRequest = new VehicleRequest("", "", 1800, "too-short", null, null, null);
 
         // Act & Assert
         mockMvc.perform(post("/api/vehicles")
@@ -118,5 +145,62 @@ class VehicleControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateVehicle_ShouldReturnOk_WhenUserIsOwner() throws Exception {
+        // Arrange
+        String ownerId = "owner-id";
+        User owner = new User(ownerId, "owner@test.com", "Owner Name", Role.OWNER);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        vehicle.setId(1L);
+
+        VehicleRequest request = new VehicleRequest("B-999-XYZ", "Dacia Logan", 2022, "12345678901234567", null, null, null);
+
+        when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
+        when(vehicleService.updateVehicle(eq(1L), any(VehicleRequest.class), eq(ownerId))).thenReturn(vehicle);
+
+        // Act & Assert
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/vehicles/1")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_OWNER")).jwt(j -> j.subject(ownerId)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteVehicle_ShouldReturnNoContent_WhenUserIsOwner() throws Exception {
+        // Arrange
+        String ownerId = "owner-id";
+        User owner = new User(ownerId, "owner@test.com", "Owner Name", Role.OWNER);
+
+        when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
+
+        // Act & Assert
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/vehicles/1")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_OWNER")).jwt(j -> j.subject(ownerId))))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void updateVehicleDocuments_ShouldReturnOk_WhenUserIsOwner() throws Exception {
+        // Arrange
+        String ownerId = "owner-id";
+        User owner = new User(ownerId, "owner@test.com", "Owner Name", Role.OWNER);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        vehicle.setId(1L);
+
+        java.time.LocalDate itp = java.time.LocalDate.now().plusDays(30);
+        com.example.flotera.vehicle.dto.DocumentRequest request = new com.example.flotera.vehicle.dto.DocumentRequest(itp, itp, itp);
+
+        when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
+        when(vehicleService.updateVehicleDocuments(eq(1L), any(com.example.flotera.vehicle.dto.DocumentRequest.class), eq(ownerId))).thenReturn(vehicle);
+
+        // Act & Assert
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/vehicles/1/documents")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_OWNER")).jwt(j -> j.subject(ownerId)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
     }
 }

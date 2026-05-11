@@ -17,6 +17,10 @@ public record VehicleRequest(
 
     @NotBlank(message = "Seria de șasiu (VIN) este obligatorie")
     @Size(min = 17, max = 17, message = "Seria de șasiu trebuie să aibă exact 17 caractere")
-    String vin
+    String vin,
+
+    java.time.LocalDate itpExpiration,
+    java.time.LocalDate rcaExpiration,
+    java.time.LocalDate rovinietaExpiration
 ) {
 }

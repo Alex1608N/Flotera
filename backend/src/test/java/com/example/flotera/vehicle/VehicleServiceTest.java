@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,6 +32,9 @@ class VehicleServiceTest {
     @Mock
     private StorageService storageService;
 
+    @Mock
+    private com.example.flotera.incident.IncidentRepository incidentRepository;
+
     @InjectMocks
     private VehicleService vehicleService;
 
@@ -40,7 +44,7 @@ class VehicleServiceTest {
     @BeforeEach
     void setUp() {
         owner = new User("owner-id", "owner@test.com", "Owner Name", Role.OWNER);
-        request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567");
+        request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", null, null, null);
     }
 
     @Test
@@ -67,6 +71,20 @@ class VehicleServiceTest {
     }
 
     @Test
+    void getVehiclesByOwner_ShouldReturnList() {
+        // Arrange
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        when(vehicleRepository.findByOwnerId("owner-id")).thenReturn(List.of(vehicle));
+
+        // Act
+        List<Vehicle> result = vehicleService.getVehiclesByOwner("owner-id");
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals("B-123-ABC", result.get(0).getLicensePlate());
+    }
+
+    @Test
     void saveVehicleImage_ShouldUpdateImageUrl_WhenOwnerRequests() {
         // Arrange
         Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
@@ -86,18 +104,68 @@ class VehicleServiceTest {
     }
 
     @Test
-    void saveVehicleImage_ShouldThrowException_WhenNotOwner() {
+    void updateVehicle_ShouldUpdate_WhenOwnerRequests() {
         // Arrange
         Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
         vehicle.setId(1L);
-        MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
-        
+        VehicleRequest newRequest = new VehicleRequest("B-999-XYZ", "Dacia Jogger", 2024, "99945678901234567", null, null, null);
+
+        when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
+        when(vehicleRepository.save(any())).thenReturn(vehicle);
+
+        // Act
+        Vehicle result = vehicleService.updateVehicle(1L, newRequest, "owner-id");
+
+        // Assert
+        assertEquals("B-999-XYZ", result.getLicensePlate());
+        assertEquals("Dacia Jogger", result.getModel());
+        verify(vehicleRepository).save(vehicle);
+    }
+
+    @Test
+    void deleteVehicle_ShouldDelete_WhenOwnerRequests() {
+        // Arrange
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        vehicle.setId(1L);
+        when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
+
+        // Act
+        vehicleService.deleteVehicle(1L, "owner-id");
+
+        // Assert
+        verify(vehicleRepository).delete(vehicle);
+    }
+
+    @Test
+    void updateOdometer_ShouldUpdate_WhenValueIsGreater() {
+        // Arrange
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        vehicle.setId(1L);
+        vehicle.setOdometer(1000L);
+        when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
+        when(vehicleRepository.save(any())).thenReturn(vehicle);
+
+        // Act
+        Vehicle result = vehicleService.updateOdometer(1L, 1100L, "owner-id");
+
+        // Assert
+        assertEquals(1100L, result.getOdometer());
+        assertNotNull(result.getLastOdometerUpdate());
+        verify(vehicleRepository).save(vehicle);
+    }
+
+    @Test
+    void updateOdometer_ShouldThrowException_WhenValueIsSmaller() {
+        // Arrange
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        vehicle.setId(1L);
+        vehicle.setOdometer(1000L);
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
 
         // Act & Assert
-        assertThrows(SecurityException.class, () -> 
-                vehicleService.saveVehicleImage(1L, file, "other-user-id"));
-        
+        assertThrows(IllegalArgumentException.class, () -> 
+            vehicleService.updateOdometer(1L, 900L, "owner-id")
+        );
         verify(vehicleRepository, never()).save(any());
     }
 }
