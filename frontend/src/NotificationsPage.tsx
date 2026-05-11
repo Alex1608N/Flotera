@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { vehicleApi } from './api/vehicleApi';
 import type { Vehicle } from './api/vehicleApi';
-import { Bell, Info, Clock, Calendar, Gauge, ExternalLink, Map, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Bell, Info, Clock, Calendar, Gauge, ExternalLink, Map, AlertTriangle } from 'lucide-react';
 
 interface NotificationsPageProps {
   onEdit: (vehicle: Vehicle) => void;

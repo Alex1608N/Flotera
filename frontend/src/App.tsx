@@ -9,6 +9,7 @@ import NotificationsPage from './NotificationsPage'
 import VehicleForm from './components/VehicleForm'
 import IncidentList from './components/IncidentList'
 import IncidentForm from './components/IncidentForm'
+import ServiceHistory from './components/ServiceHistory'
 import type { Vehicle } from './api/vehicleApi'
 
 function App() {
@@ -16,8 +17,11 @@ function App() {
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isIncidentFormOpen, setIsIncidentFormOpen] = useState(false);
+  const [isServiceHistoryOpen, setIsServiceHistoryOpen] = useState(false);
+  
   const [vehicleToEdit, setVehicleToEdit] = useState<Vehicle | null>(null);
   const [incidentVehicle, setIncidentVehicle] = useState<Vehicle | null>(null);
+  const [historyVehicle, setHistoryVehicle] = useState<Vehicle | null>(null);
   const [vehicleForIncidentReport, setVehicleForIncidentReport] = useState<Vehicle | null>(null);
 
   useEffect(() => {
@@ -52,6 +56,11 @@ function App() {
     setIncidentVehicle(vehicle);
   };
 
+  const handleShowHistory = (vehicle: Vehicle) => {
+    setHistoryVehicle(vehicle);
+    setIsServiceHistoryOpen(true);
+  };
+
   const handleReportIncident = (vehicle: Vehicle) => {
     setVehicleForIncidentReport(vehicle);
     setIsIncidentFormOpen(true);
@@ -68,6 +77,7 @@ function App() {
           onEdit={handleEdit} 
           onShowIncidents={handleShowIncidents} 
           onReportIncident={handleReportIncident} 
+          onShowHistory={handleShowHistory}
         />
       )}
       {currentPage === 'fleet' && (
@@ -76,6 +86,7 @@ function App() {
           onOpenAdd={() => { setVehicleToEdit(null); setIsFormOpen(true); }}
           onShowIncidents={handleShowIncidents}
           onReportIncident={handleReportIncident}
+          onShowHistory={handleShowHistory}
         />
       )}
       {currentPage === 'notifications' && <NotificationsPage onEdit={handleEdit} />}
@@ -94,6 +105,17 @@ function App() {
           onClose={() => {
             setIsIncidentFormOpen(false);
             setVehicleForIncidentReport(null);
+          }}
+        />
+      )}
+
+      {isServiceHistoryOpen && historyVehicle && (
+        <ServiceHistory
+          vehicleId={historyVehicle.id}
+          vehiclePlate={historyVehicle.licensePlate}
+          onClose={() => {
+            setIsServiceHistoryOpen(false);
+            setHistoryVehicle(null);
           }}
         />
       )}

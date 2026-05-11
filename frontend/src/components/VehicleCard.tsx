@@ -9,9 +9,10 @@ interface VehicleCardProps {
   onDelete: (id: number) => void;
   onShowIncidents?: (vehicle: Vehicle) => void;
   onReportIncident?: (vehicle: Vehicle) => void;
+  onShowHistory?: (vehicle: Vehicle) => void;
 }
 
-export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents, onReportIncident }: VehicleCardProps) {
+export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents, onReportIncident, onShowHistory }: VehicleCardProps) {
   const queryClient = useQueryClient();
 
   const getDaysRemaining = (dateStr?: string) => {
@@ -101,6 +102,13 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
 
         {/* Action Overlay (Appears on Hover) */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-end p-3 gap-2">
+          <button 
+            onClick={(e) => { e.stopPropagation(); onShowHistory?.(vehicle); }}
+            className="p-2 bg-white/20 hover:bg-blue-500 text-white rounded-lg backdrop-blur-sm transition-all"
+            title="Istoric Service"
+          >
+            <Wrench size={18} />
+          </button>
           <button 
             onClick={(e) => { e.stopPropagation(); onReportIncident?.(vehicle); }}
             className="p-2 bg-white/20 hover:bg-orange-500 text-white rounded-lg backdrop-blur-sm transition-all"

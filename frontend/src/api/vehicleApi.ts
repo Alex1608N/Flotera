@@ -45,6 +45,16 @@ export interface Incident {
   resolvedAt?: string;
 }
 
+export interface ServiceRecord {
+  id: number;
+  vehicleId: number;
+  date: string;
+  odometer: number;
+  description: string;
+  cost?: number;
+  type: 'ROUTINE_MAINTENANCE' | 'REPAIR' | 'TYRE_CHANGE' | 'INSPECTION';
+}
+
 export const vehicleApi = {
   getAll: () => api.get<Vehicle[]>('/vehicles').then(res => res.data),
   create: (data: Omit<Vehicle, 'id' | 'imageUrl' | 'ownerId' | 'status' | 'odometer' | 'lastOdometerUpdate' | 'hasActiveIncidents'>) => api.post<Vehicle>('/vehicles', data).then(res => res.data),
@@ -71,7 +81,11 @@ export const vehicleApi = {
       headers: { 'Content-Type': 'multipart/form-data' }
     }).then(res => res.data);
   },
-  resolveIncident: (incidentId: number) => api.patch<Incident>(`/vehicles/incidents/${incidentId}/resolve`).then(res => res.data)
+  resolveIncident: (incidentId: number) => api.patch<Incident>(`/vehicles/incidents/${incidentId}/resolve`).then(res => res.data),
+
+  // Istoric Service
+  getServiceHistory: (vehicleId: number) => api.get<ServiceRecord[]>(`/vehicles/${vehicleId}/service-history`).then(res => res.data),
+  addServiceRecord: (vehicleId: number, data: Omit<ServiceRecord, 'id' | 'vehicleId'>) => api.post<ServiceRecord>(`/vehicles/${vehicleId}/service-history`, data).then(res => res.data)
 };
 
 export default api;

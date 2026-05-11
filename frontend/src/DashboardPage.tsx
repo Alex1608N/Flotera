@@ -8,9 +8,10 @@ interface DashboardPageProps {
   onEdit: (vehicle: Vehicle) => void;
   onShowIncidents: (vehicle: Vehicle) => void;
   onReportIncident: (vehicle: Vehicle) => void;
+  onShowHistory: (vehicle: Vehicle) => void;
 }
 
-export default function DashboardPage({ onEdit, onShowIncidents, onReportIncident }: DashboardPageProps) {
+export default function DashboardPage({ onEdit, onShowIncidents, onReportIncident, onShowHistory }: DashboardPageProps) {
   const { data: vehicles = [], isLoading } = useQuery({
     queryKey: ['vehicles'],
     queryFn: vehicleApi.getAll
@@ -102,6 +103,7 @@ export default function DashboardPage({ onEdit, onShowIncidents, onReportInciden
                 onDelete={() => {}} 
                 onShowIncidents={onShowIncidents}
                 onReportIncident={onReportIncident}
+                onShowHistory={onShowHistory}
               />
             ))}
           </div>
