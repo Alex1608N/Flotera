@@ -20,6 +20,9 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
     // Constructori
     public User() {
     }
@@ -43,4 +46,7 @@ public class User {
 
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+
+    public String getProfilePictureUrl() { return profilePictureUrl; }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
 }

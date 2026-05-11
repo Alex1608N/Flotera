@@ -106,11 +106,12 @@ public class VehicleService {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + id + " nu a fost găsit."));
 
-        // Verificăm permisiunile (Proprietarul sau Șoferul asignat pot actualiza - dar pentru moment doar proprietarul e implementat complet)
-        // În viitor, FR2 spune că Șoferul vede doar mașina lui.
-        if (!vehicle.getOwner().getId().equals(requesterId)) {
-             // TODO: Check if requester is the assigned driver
-             throw new SecurityException("Nu aveți permisiunea de a modifica acest vehicul.");
+        // Verificăm permisiunile (Proprietarul sau Șoferul asignat pot actualiza)
+        boolean isOwner = vehicle.getOwner().getId().equals(requesterId);
+        boolean isAssignedDriver = vehicle.getAssignedDriver() != null && vehicle.getAssignedDriver().getId().equals(requesterId);
+        
+        if (!isOwner && !isAssignedDriver) {
+             throw new SecurityException("Nu aveți permisiunea de a modifica kilometrajul acestui vehicul.");
         }
 
         if (newOdometer < vehicle.getOdometer()) {
@@ -155,5 +156,28 @@ public class VehicleService {
         vehicleRepository.save(vehicle);
 
         return imageUrl;
+    }
+
+    @Transactional
+    public Vehicle assignDriver(Long vehicleId, String driverId, String requesterId) {
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost găsit."));
+
+        if (!vehicle.getOwner().getId().equals(requesterId)) {
+            throw new SecurityException("Doar proprietarul poate asigna un șofer.");
+        }
+
+        if (driverId == null || driverId.trim().isEmpty()) {
+            vehicle.setAssignedDriver(null);
+        } else {
+            User driver = userRepository.findById(driverId)
+                    .orElseThrow(() -> new IllegalArgumentException("Șoferul nu a fost găsit."));
+            if (driver.getRole() != com.example.flotera.user.Role.DRIVER) {
+                throw new IllegalArgumentException("Utilizatorul selectat nu are rolul de ȘOFER.");
+            }
+            vehicle.setAssignedDriver(driver);
+        }
+
+        return vehicleRepository.save(vehicle);
     }
 }

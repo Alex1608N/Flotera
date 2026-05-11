@@ -102,6 +102,18 @@ public class VehicleController {
         return ResponseEntity.ok(toResponse(vehicle));
     }
 
+    @PutMapping("/{id}/driver")
+    public ResponseEntity<VehicleResponse> assignDriver(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String requesterId = jwt.getSubject();
+        String driverId = request.get("driverId");
+        Vehicle vehicle = vehicleService.assignDriver(id, driverId, requesterId);
+        return ResponseEntity.ok(toResponse(vehicle));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVehicle(
             @PathVariable Long id,
@@ -123,6 +135,8 @@ public class VehicleController {
                 v.getYear(),
                 v.getVin(),
                 v.getOwner().getId(),
+                v.getAssignedDriver() != null ? v.getAssignedDriver().getId() : null,
+                v.getAssignedDriver() != null ? v.getAssignedDriver().getName() : null,
                 v.getImageUrl(),
                 v.getItpExpiration(),
                 v.getRcaExpiration(),

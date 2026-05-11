@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { supabase } from '../supabaseClient';
 
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: API_BASE_URL,
 });
 
 // Interceptor pentru a adăuga automat token-ul JWT în fiecare cerere
@@ -20,6 +22,8 @@ export interface Vehicle {
   model: string;
   year: number;
   vin: string;
+  assignedDriverId?: string;
+  assignedDriverName?: string;
   imageUrl?: string;
   ownerId: string;
   itpExpiration?: string;
@@ -85,7 +89,8 @@ export const vehicleApi = {
 
   // Istoric Service
   getServiceHistory: (vehicleId: number) => api.get<ServiceRecord[]>(`/vehicles/${vehicleId}/service-history`).then(res => res.data),
-  addServiceRecord: (vehicleId: number, data: Omit<ServiceRecord, 'id' | 'vehicleId'>) => api.post<ServiceRecord>(`/vehicles/${vehicleId}/service-history`, data).then(res => res.data)
+  addServiceRecord: (vehicleId: number, data: Omit<ServiceRecord, 'id' | 'vehicleId'>) => api.post<ServiceRecord>(`/vehicles/${vehicleId}/service-history`, data).then(res => res.data),
+  assignDriver: (vehicleId: number, driverId: string | null) => api.put<Vehicle>(`/vehicles/${vehicleId}/driver`, { driverId: driverId || '' }).then(res => res.data)
 };
 
 export default api;

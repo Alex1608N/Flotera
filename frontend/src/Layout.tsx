@@ -2,6 +2,7 @@ import React from 'react';
 import { supabase } from "./supabaseClient";
 import { useQuery } from '@tanstack/react-query';
 import { vehicleApi } from './api/vehicleApi';
+import { userApi } from './api/userApi';
 import { 
   LayoutDashboard, 
   Car, 
@@ -22,6 +23,11 @@ interface LayoutProps {
 export default function Layout({ children, userEmail, currentPage, onNavigate }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: userApi.getCurrentUser
+  });
+
   const { data: vehicles = [] } = useQuery({
     queryKey: ['vehicles'],
     queryFn: vehicleApi.getAll
@@ -33,6 +39,7 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'fleet', name: 'Flota Mea', icon: Car },
     { id: 'notifications', name: 'Notificări', icon: Bell, badge: alertCount },
+    { id: 'profile', name: 'Profilul Meu', icon: UserIcon },
   ];
 
   return (
@@ -49,43 +56,52 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
         </div>
 
         <nav className="flex-1 px-4 space-y-2">
-          {navigation.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
-              className={`w-full flex items-center p-3 rounded-lg transition-colors group ${
-                currentPage === item.id 
-                  ? 'bg-blue-600 text-white' 
-                  : 'hover:bg-blue-600/20 hover:text-blue-400 text-gray-300'
-              }`}
-            >
-              <div className="relative">
-                <item.icon className="w-6 h-6 shrink-0" />
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-slate-900">
-                    {item.badge}
-                  </span>
-                )}
-              </div>
-              <span className={`ml-3 font-medium ${!isSidebarOpen && 'hidden'}`}>
-                {item.name}
-              </span>
-            </button>
-          ))}
+          {navigation.map((item) => {
+            // Ascunde Flota Mea pentru șoferi
+            if (item.id === 'fleet' && user?.role === 'DRIVER') return null;
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.id)}
+                className={`w-full flex items-center p-3 rounded-lg transition-colors group ${
+                  currentPage === item.id 
+                    ? 'bg-blue-600 text-white' 
+                    : 'hover:bg-blue-600/20 hover:text-blue-400 text-gray-300'
+                }`}
+              >
+                <div className="relative">
+                  <item.icon className="w-6 h-6 shrink-0" />
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-slate-900">
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
+                <span className={`ml-3 font-medium ${!isSidebarOpen && 'hidden'}`}>
+                  {item.name}
+                </span>
+              </button>
+            )
+          })}
         </nav>
 
         <div className="p-4 border-t border-slate-800">
-          <div className="flex items-center p-2">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
-              <UserIcon size={18} />
+          <button onClick={() => onNavigate('profile')} className="w-full flex items-center p-2 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer text-left">
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center overflow-hidden shrink-0">
+              {user?.profilePictureUrl ? (
+                <img src={user.profilePictureUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <UserIcon size={18} />
+              )}
             </div>
             {isSidebarOpen && (
               <div className="ml-3 overflow-hidden">
-                <p className="text-xs text-gray-400 truncate">{userEmail}</p>
-                <p className="text-sm font-medium">Proprietar</p>
+                <p className="text-xs text-gray-400 truncate">{user?.name || userEmail}</p>
+                <p className="text-sm font-medium">{user?.role === 'OWNER' ? 'Proprietar' : 'Șofer'}</p>
               </div>
             )}
-          </div>
+          </button>
           <button 
             onClick={() => supabase.auth.signOut()}
             className="w-full mt-4 flex items-center p-2 text-gray-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"

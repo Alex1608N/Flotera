@@ -35,6 +35,9 @@ public class SecurityConfig {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    @Value("${allowed.origins:http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174}")
+    private String allowedOrigins;
+
     private final UserRepository userRepository;
 
     public SecurityConfig(UserRepository userRepository) {
@@ -123,7 +126,10 @@ public class SecurityConfig {
 
             // Auto-creăm utilizatorul în H2 dacă nu există (pentru sincronizarea cu Supabase)
             User user = userRepository.findById(userId).orElseGet(() -> {
-                User newUser = new User(userId, jwt.getClaimAsString("email") != null ? jwt.getClaimAsString("email") : "user@local", "Utilizator Supabase", Role.OWNER);
+                String actualEmail = jwt.getClaimAsString("email");
+                Role defaultRole = (actualEmail != null && actualEmail.contains("driver")) ? Role.DRIVER : Role.OWNER;
+                
+                User newUser = new User(userId, actualEmail != null ? actualEmail : "user@local", "Utilizator Supabase", defaultRole);
                 return userRepository.save(newUser);
             });
 

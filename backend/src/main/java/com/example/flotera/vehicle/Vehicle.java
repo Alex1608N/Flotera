@@ -27,6 +27,10 @@ public class Vehicle {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_driver_id")
+    private User assignedDriver;
+
     @Column(name = "image_url")
     private String imageUrl;
 
@@ -89,6 +93,9 @@ public class Vehicle {
 
     public User getOwner() { return owner; }
     public void setOwner(User owner) { this.owner = owner; }
+
+    public User getAssignedDriver() { return assignedDriver; }
+    public void setAssignedDriver(User assignedDriver) { this.assignedDriver = assignedDriver; }
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }

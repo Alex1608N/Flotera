@@ -6,6 +6,7 @@ import Layout from './Layout'
 import FleetPage from './FleetPage'
 import DashboardPage from './DashboardPage'
 import NotificationsPage from './NotificationsPage'
+import ProfilePage from './ProfilePage'
 import VehicleForm from './components/VehicleForm'
 import IncidentList from './components/IncidentList'
 import IncidentForm from './components/IncidentForm'
@@ -90,6 +91,7 @@ function App() {
         />
       )}
       {currentPage === 'notifications' && <NotificationsPage onEdit={handleEdit} />}
+      {currentPage === 'profile' && <ProfilePage />}
 
       {isFormOpen && (
         <VehicleForm 

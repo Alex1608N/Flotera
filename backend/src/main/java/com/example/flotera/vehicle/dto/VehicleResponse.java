@@ -10,6 +10,8 @@ public record VehicleResponse(
         Integer year,
         String vin,
         String ownerId,
+        String assignedDriverId,
+        String assignedDriverName,
         String imageUrl,
         LocalDate itpExpiration,
         LocalDate rcaExpiration,

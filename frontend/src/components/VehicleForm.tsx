@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { vehicleApi } from '../api/vehicleApi';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { vehicleApi, API_BASE_URL } from '../api/vehicleApi';
+import { userApi } from '../api/userApi';
 import type { Vehicle } from '../api/vehicleApi';
-import { X, Upload, Car } from 'lucide-react';
+import { X, Upload, Car, User } from 'lucide-react';
 
 interface VehicleFormProps {
   onClose: () => void;
@@ -11,6 +12,11 @@ interface VehicleFormProps {
 
 export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps) {
   const queryClient = useQueryClient();
+  const { data: drivers = [] } = useQuery({
+    queryKey: ['drivers'],
+    queryFn: userApi.getAllDrivers
+  });
+
   const [formData, setFormData] = useState({
     licensePlate: vehicleToEdit?.licensePlate || '',
     model: vehicleToEdit?.model || '',
@@ -22,7 +28,8 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
     lastMaintenanceKm: vehicleToEdit?.lastMaintenanceKm || 0,
     lastMaintenanceDate: vehicleToEdit?.lastMaintenanceDate || '',
     maintenanceThresholdKm: vehicleToEdit?.maintenanceThresholdKm || 10000,
-    maintenanceThresholdMonths: vehicleToEdit?.maintenanceThresholdMonths || 12
+    maintenanceThresholdMonths: vehicleToEdit?.maintenanceThresholdMonths || 12,
+    assignedDriverId: vehicleToEdit?.assignedDriverId || ''
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
@@ -97,7 +104,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                 {imageFile ? (
                   <img src={URL.createObjectURL(imageFile)} alt="Preview" className="w-full h-full object-cover" />
                 ) : vehicleToEdit?.imageUrl ? (
-                  <img src={`http://localhost:8080${vehicleToEdit.imageUrl}`} alt="Current" className="w-full h-full object-cover" />
+                  <img src={`${API_BASE_URL.replace('/api', '')}${vehicleToEdit.imageUrl}`} alt="Current" className="w-full h-full object-cover" />
                 ) : (
                   <>
                     <Upload className="text-blue-500 mb-2" size={24} />
@@ -167,6 +174,27 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                   value={formData.vin}
                   onChange={e => setFormData({...formData, vin: e.target.value.toUpperCase()})}
                 />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Șofer Asignat</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="text-gray-400" size={18} />
+                  </div>
+                  <select 
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow appearance-none"
+                    value={formData.assignedDriverId}
+                    onChange={e => setFormData({...formData, assignedDriverId: e.target.value})}
+                  >
+                    <option value="">-- Fără șofer asignat --</option>
+                    {drivers.map(driver => (
+                      <option key={driver.id} value={driver.id}>
+                        {driver.name} ({driver.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Sectiune Documente */}
