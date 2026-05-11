@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { vehicleApi } from './api/vehicleApi';
 import type { Vehicle } from './api/vehicleApi';
-import { Bell, Info, Clock, Calendar, Gauge, ExternalLink } from 'lucide-react';
+import { Bell, Info, Clock, Calendar, Gauge, ExternalLink, Map, AlertTriangle, AlertCircle } from 'lucide-react';
 
 interface NotificationsPageProps {
   onEdit: (vehicle: Vehicle) => void;
@@ -45,6 +45,33 @@ export default function NotificationsPage({ onEdit }: NotificationsPageProps) {
           icon: ShieldCheckIcon
         });
       }
+    }
+
+    // Rovinietă
+    if (vehicle.rovinietaExpiration) {
+      const days = Math.ceil((new Date(vehicle.rovinietaExpiration).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      if (days <= 30) {
+        alerts.push({
+          id: `${vehicle.id}-ro`,
+          vehicleObj: vehicle,
+          vehiclePlate: vehicle.licensePlate,
+          type: days <= 0 ? 'CRITICAL' : 'WARNING',
+          message: days <= 0 ? `Rovinieta a expirat!` : `Rovinieta expiră în ${days} zile.`,
+          icon: Map
+        });
+      }
+    }
+
+    // Incidente active
+    if (vehicle.hasActiveIncidents) {
+      alerts.push({
+        id: `${vehicle.id}-incident`,
+        vehicleObj: vehicle,
+        vehiclePlate: vehicle.licensePlate,
+        type: 'CRITICAL',
+        message: 'Există probleme tehnice nerezolvate raportate de șofer.',
+        icon: AlertTriangle
+      });
     }
 
     // Maintenance KM
