@@ -77,6 +77,15 @@ export default function IncidentList({ vehicleId, vehiclePlate, onClose }: Incid
                   <p className="text-sm text-slate-700 leading-relaxed mb-4">
                     {incident.description}
                   </p>
+                  {incident.imageUrl && (
+                    <div className="mb-4 rounded-xl overflow-hidden border border-slate-200">
+                      <img 
+                        src={`http://localhost:8080${incident.imageUrl}`} 
+                        alt="Incident" 
+                        className="w-full h-auto object-cover max-h-48"
+                      />
+                    </div>
+                  )}
                   {incident.status === 'OPEN' && (
                     <button 
                       onClick={() => resolveMutation.mutate(incident.id)}

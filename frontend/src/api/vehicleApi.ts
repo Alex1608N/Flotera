@@ -39,6 +39,7 @@ export interface Incident {
   id: number;
   vehicleId: number;
   description: string;
+  imageUrl?: string;
   status: 'OPEN' | 'RESOLVED';
   createdAt: string;
   resolvedAt?: string;
@@ -60,7 +61,16 @@ export const vehicleApi = {
   
   // Incidente
   getIncidents: (vehicleId: number) => api.get<Incident[]>(`/vehicles/${vehicleId}/incidents`).then(res => res.data),
-  reportIncident: (vehicleId: number, description: string) => api.post<Incident>(`/vehicles/${vehicleId}/incidents`, { description }).then(res => res.data),
+  reportIncident: (vehicleId: number, description: string, file?: File) => {
+    const formData = new FormData();
+    formData.append('description', description);
+    if (file) {
+      formData.append('file', file);
+    }
+    return api.post<Incident>(`/vehicles/${vehicleId}/incidents`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(res => res.data);
+  },
   resolveIncident: (incidentId: number) => api.patch<Incident>(`/vehicles/incidents/${incidentId}/resolve`).then(res => res.data)
 };
 

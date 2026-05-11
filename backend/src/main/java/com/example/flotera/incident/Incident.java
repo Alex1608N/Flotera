@@ -19,6 +19,9 @@ public class Incident {
     @Column(nullable = false, length = 1000)
     private String description;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IncidentStatus status = IncidentStatus.OPEN;
@@ -54,6 +57,9 @@ public class Incident {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public IncidentStatus getStatus() { return status; }
     public void setStatus(IncidentStatus status) { this.status = status; }

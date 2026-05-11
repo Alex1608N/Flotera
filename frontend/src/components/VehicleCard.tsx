@@ -37,7 +37,8 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
   });
 
   const incidentMutation = useMutation({
-    mutationFn: (description: string) => vehicleApi.reportIncident(vehicle.id, description),
+    mutationFn: ({ description, file }: { description: string; file?: File }) => 
+      vehicleApi.reportIncident(vehicle.id, description, file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       alert('Incidentul a fost raportat cu succes.');
@@ -60,9 +61,33 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
 
   const handleReportIncident = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const description = window.prompt(`Raportează o problemă pentru ${vehicle.licensePlate}:`);
-    if (description) {
-      incidentMutation.mutate(description);
+
+    // Creăm un input file temporar pentru a permite selecția unei imagini
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+
+    fileInput.onchange = (event: any) => {
+      const file = event.target.files?.[0];
+      const description = window.prompt(`Raportează o problemă pentru ${vehicle.licensePlate} ${file ? '(cu imagine)' : ''}:`);
+
+      if (description) {
+        incidentMutation.mutate({ description, file });
+      }
+    };
+
+    // Dacă utilizatorul anulează selecția fișierului, putem totuși cere doar descrierea
+    const description = window.prompt(`Raportează o problemă pentru ${vehicle.licensePlate}. Doriți să adăugați și o imagine? (OK pentru a alege imaginea, Cancel pentru doar text)`);
+
+    if (description === null) return; // Utilizatorul a apăsat Cancel la descriere
+
+    if (window.confirm("Doriți să atașați o fotografie incidentului?")) {
+      fileInput.click();
+    } else {
+      const finalDesc = window.prompt(`Descrierea incidentului pentru ${vehicle.licensePlate}:`);
+      if (finalDesc) {
+        incidentMutation.mutate({ description: finalDesc });
+      }
     }
   };
 

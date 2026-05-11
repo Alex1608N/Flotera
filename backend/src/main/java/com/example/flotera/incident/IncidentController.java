@@ -20,12 +20,13 @@ public class IncidentController {
         this.incidentService = incidentService;
     }
 
-    @PostMapping("/{id}/incidents")
+    @PostMapping(value = "/{id}/incidents", consumes = {"multipart/form-data"})
     public ResponseEntity<IncidentResponse> reportIncident(
             @PathVariable Long id,
-            @Valid @RequestBody IncidentRequest request,
+            @RequestPart("description") String description,
+            @RequestPart(value = "file", required = false) org.springframework.web.multipart.MultipartFile file,
             @AuthenticationPrincipal Jwt jwt) {
-        return ResponseEntity.ok(incidentService.reportIncident(id, request, jwt.getSubject()));
+        return ResponseEntity.ok(incidentService.reportIncident(id, description, file, jwt.getSubject()));
     }
 
     @GetMapping("/{id}/incidents")

@@ -7,6 +7,7 @@ public record IncidentResponse(
     Long id,
     Long vehicleId,
     String description,
+    String imageUrl,
     IncidentStatus status,
     LocalDateTime createdAt,
     LocalDateTime resolvedAt

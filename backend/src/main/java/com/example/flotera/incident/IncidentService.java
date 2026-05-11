@@ -1,11 +1,12 @@
 package com.example.flotera.incident;
 
-import com.example.flotera.incident.dto.IncidentRequest;
 import com.example.flotera.incident.dto.IncidentResponse;
 import com.example.flotera.vehicle.Vehicle;
 import com.example.flotera.vehicle.VehicleRepository;
+import com.example.flotera.storage.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,23 +17,31 @@ public class IncidentService {
 
     private final IncidentRepository incidentRepository;
     private final VehicleRepository vehicleRepository;
+    private final StorageService storageService;
 
-    public IncidentService(IncidentRepository incidentRepository, VehicleRepository vehicleRepository) {
+    public IncidentService(IncidentRepository incidentRepository, VehicleRepository vehicleRepository, StorageService storageService) {
         this.incidentRepository = incidentRepository;
         this.vehicleRepository = vehicleRepository;
+        this.storageService = storageService;
     }
 
     @Transactional
-    public IncidentResponse reportIncident(Long vehicleId, IncidentRequest request, String requesterId) {
+    public IncidentResponse reportIncident(Long vehicleId, String description, MultipartFile file, String requesterId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost găsit."));
 
-        // Verificăm permisiunile (Proprietarul poate raporta)
+        // Verificăm permisiunile
         if (!vehicle.getOwner().getId().equals(requesterId)) {
             throw new SecurityException("Nu aveți permisiunea de a raporta un incident pentru acest vehicul.");
         }
 
-        Incident incident = new Incident(vehicle, request.description());
+        Incident incident = new Incident(vehicle, description);
+        
+        if (file != null && !file.isEmpty()) {
+            String imageUrl = storageService.store(file, "incidents");
+            incident.setImageUrl(imageUrl);
+        }
+
         Incident saved = incidentRepository.save(incident);
 
         return mapToResponse(saved);
@@ -72,6 +81,7 @@ public class IncidentService {
                 incident.getId(),
                 incident.getVehicle().getId(),
                 incident.getDescription(),
+                incident.getImageUrl(),
                 incident.getStatus(),
                 incident.getCreatedAt(),
                 incident.getResolvedAt()
