@@ -72,7 +72,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
       <div className="aspect-video relative overflow-hidden bg-slate-50">
         {vehicle.imageUrl ? (
           <img 
-            src={`http://localhost:8080${vehicle.imageUrl}`} 
+            src={`${import.meta.env.VITE_API_URL.replace('/api', '')}${vehicle.imageUrl}`} 
             alt={vehicle.model} 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
