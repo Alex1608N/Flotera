@@ -18,8 +18,8 @@ jobs:
         # You need to add RENDER_DEPLOY_HOOK_URL in GitHub Repo Settings -> Secrets
         run: |
           if [ -z "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
-            echo "RENDER_DEPLOY_HOOK_URL secret is not set. Skipping deploy trigger."
-            exit 1
+            echo "RENDER_DEPLOY_HOOK_URL secret is not set. Skipping deploy trigger (optional)."
+            exit 0
           fi
           curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
           echo "Render deployment triggered successfully!"

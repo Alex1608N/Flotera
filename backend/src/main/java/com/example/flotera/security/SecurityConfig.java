@@ -72,16 +72,16 @@ public class SecurityConfig {
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
             CorsConfiguration configuration = new CorsConfiguration();
-            configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:5173", 
-                "http://localhost:5174", 
-                "http://127.0.0.1:5173",
-                "http://127.0.0.1:5174"
-            ));
+            
+            // Folosim lista de origins din variabila de mediu sau fallback la localhost
+            List<String> origins = Arrays.asList(allowedOrigins.split(","));
+            
+            configuration.setAllowedOrigins(origins);
             configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
             configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
             configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
             configuration.setAllowCredentials(true);
+            
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
             source.registerCorsConfiguration("/**", configuration);
             return source;
