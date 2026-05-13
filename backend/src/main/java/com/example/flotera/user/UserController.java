@@ -82,6 +82,21 @@ public class UserController {
         return ResponseEntity.ok(toDto(user));
     }
 
+    @PostMapping("/me/toggle-role")
+    public ResponseEntity<UserDto> toggleRole(@AuthenticationPrincipal Jwt jwt) {
+        String userId = jwt.getSubject();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+        
+        if (user.getRole() == Role.OWNER) {
+            user.setRole(Role.DRIVER);
+        } else {
+            user.setRole(Role.OWNER);
+        }
+        userRepository.save(user);
+        return ResponseEntity.ok(toDto(user));
+    }
+
     @PostMapping("/{targetUserId}/profile-picture/upload")
     public ResponseEntity<UserDto> uploadOtherUserProfilePicture(
             @PathVariable String targetUserId,

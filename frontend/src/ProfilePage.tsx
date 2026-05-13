@@ -4,7 +4,7 @@ import { userApi } from './api/userApi';
 import { vehicleApi } from './api/vehicleApi';
 import type { Vehicle } from './api/vehicleApi';
 import { supabase } from './supabaseClient';
-import { Upload, User as UserIcon, Save, KeyRound, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Upload, User as UserIcon, Save, KeyRound, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function ProfilePage() {
   const queryClient = useQueryClient();
@@ -35,6 +35,14 @@ export default function ProfilePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       showFeedback('Numele a fost actualizat!', 'success');
+    }
+  });
+
+  const toggleRoleMutation = useMutation({
+    mutationFn: userApi.toggleRole,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      showFeedback('Rolul a fost schimbat pentru simulare!', 'success');
     }
   });
 
@@ -123,12 +131,23 @@ export default function ProfilePage() {
             <div className="mt-6">
               <h3 className="text-xl font-bold text-slate-900">{user.name}</h3>
               <p className="text-slate-500 text-sm mt-1">{user.email}</p>
-              <div className="mt-4">
+              <div className="mt-4 flex flex-col gap-3 items-center">
                 <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                   user.role === 'OWNER' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
                 }`}>
                   {user.role === 'OWNER' ? 'Proprietar' : 'Șofer'}
                 </span>
+                
+                {/* Buton simulare schimbare rol */}
+                <button 
+                  onClick={() => toggleRoleMutation.mutate()}
+                  disabled={toggleRoleMutation.isPending}
+                  className="flex items-center gap-2 px-4 py-2 mt-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
+                  title="Acest buton este pentru testare. Schimbă rolul tău curent."
+                >
+                  <RefreshCw size={14} className={toggleRoleMutation.isPending ? 'animate-spin' : ''} />
+                  Simulare Rol: {user.role === 'OWNER' ? 'Devino Șofer' : 'Devino Proprietar'}
+                </button>
               </div>
             </div>
           </div>

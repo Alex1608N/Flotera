@@ -22,7 +22,7 @@ export default function Login() {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(error.message)
     } else {
-      const { error } = await supabase.auth.signUp({ 
+      const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
@@ -34,8 +34,12 @@ export default function Login() {
       if (error) {
         setError(error.message)
       } else {
-        setSuccess('Cont creat cu succes! Verifică email-ul pentru confirmare sau încearcă să te conectezi.')
-        setIsLogin(true)
+        if (data.session) {
+          setSuccess('Cont creat cu succes! Te conectăm...')
+        } else {
+          setSuccess('Cont creat cu succes! Te poți conecta acum.')
+          setIsLogin(true)
+        }
       }
     }
     setLoading(false)

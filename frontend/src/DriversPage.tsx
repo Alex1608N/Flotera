@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userApi } from './api/userApi';
 import { vehicleApi } from './api/vehicleApi';
-import { Upload, User as UserIcon, Users, Mail, CheckCircle2, AlertCircle, Car } from 'lucide-react';
+import { Upload, User as UserIcon, Users, Mail, CheckCircle2, AlertCircle, Car, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DriversPage() {
@@ -10,6 +10,11 @@ export default function DriversPage() {
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
   const [assigningDriverId, setAssigningDriverId] = useState<string | null>(null);
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: userApi.getCurrentUser
+  });
 
   const { data: drivers = [], isLoading } = useQuery({
     queryKey: ['drivers'],
@@ -27,6 +32,15 @@ export default function DriversPage() {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       showFeedback('Vehiculul a fost asignat cu succes!', 'success');
       setAssigningDriverId(null);
+    }
+  });
+
+  const toggleRoleMutation = useMutation({
+    mutationFn: userApi.toggleRole,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      queryClient.invalidateQueries({ queryKey: ['drivers'] });
+      showFeedback('Rolul a fost actualizat!', 'success');
     }
   });
 
@@ -133,7 +147,7 @@ export default function DriversPage() {
         )}
       </AnimatePresence>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
             <Users className="text-blue-600" />
@@ -141,9 +155,22 @@ export default function DriversPage() {
           </h2>
           <p className="text-slate-500 font-medium mt-1">Gestionează profilurile și accesul personalului tău</p>
         </div>
-        <div className="bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-2">
-            <span className="text-2xl font-black text-blue-600">{drivers.length}</span>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Șoferi activi</span>
+        
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Buton simulare schimbare rol */}
+          <button 
+            onClick={() => toggleRoleMutation.mutate()}
+            disabled={toggleRoleMutation.isPending}
+            className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-100 hover:border-blue-500 hover:bg-blue-50 text-slate-700 font-bold rounded-2xl transition-all shadow-sm active:scale-95 disabled:opacity-50"
+          >
+            <RefreshCw size={20} className={`text-blue-600 ${toggleRoleMutation.isPending ? 'animate-spin' : ''}`} />
+            {currentUser?.role === 'OWNER' ? 'Devino Șofer' : 'Revino la Proprietar'}
+          </button>
+
+          <div className="bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-2">
+              <span className="text-2xl font-black text-blue-600">{drivers.length}</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Șoferi activi</span>
+          </div>
         </div>
       </div>
 

@@ -209,19 +209,23 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
             </p>
           </div>
           
-          <div className="flex items-center gap-2 text-right">
+          <div className="flex items-center gap-3 text-right">
             <div className="flex flex-col">
               <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Șofer Asignat</p>
-              <p className="text-xs font-bold text-slate-700 truncate w-24">
+              <p className="text-sm font-bold text-slate-700 truncate w-24">
                 {vehicle.assignedDriverName || 'Neasignat'}
               </p>
             </div>
             {vehicle.assignedDriverName && (
-              <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-slate-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center shrink-0">
                 {vehicle.assignedDriverProfilePictureUrl ? (
-                  <img src={vehicle.assignedDriverProfilePictureUrl} alt={vehicle.assignedDriverName} className="w-full h-full object-cover" />
+                  <img 
+                    src={vehicle.assignedDriverProfilePictureUrl.startsWith('http') ? vehicle.assignedDriverProfilePictureUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}${vehicle.assignedDriverProfilePictureUrl}`} 
+                    alt={vehicle.assignedDriverName} 
+                    className="w-full h-full object-cover" 
+                  />
                 ) : (
-                  <span className="text-[10px] font-bold text-slate-400">
+                  <span className="text-sm font-bold text-slate-400">
                     {vehicle.assignedDriverName.charAt(0).toUpperCase()}
                   </span>
                 )}

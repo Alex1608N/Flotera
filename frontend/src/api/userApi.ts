@@ -14,6 +14,7 @@ export const userApi = {
   updateProfilePicture: (profilePictureUrl: string) => api.put<User>('/users/me/profile-picture', { profilePictureUrl }).then(res => res.data),
   updateName: (name: string) => api.put<User>('/users/me/name', { name }).then(res => res.data),
   updateOtherUserProfilePicture: (userId: string, profilePictureUrl: string) => api.put<User>(`/users/${userId}/profile-picture`, { profilePictureUrl }).then(res => res.data),
+  toggleRole: () => api.post<User>('/users/me/toggle-role').then(res => res.data),
   
   uploadProfilePicture: (file: File) => {
     const formData = new FormData();
