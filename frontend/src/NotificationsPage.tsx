@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationApi } from './api/notificationApi';
-import { Bell, CheckCircle2, AlertTriangle, AlertCircle, Info, Clock, Check, Trash2, Zap } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, AlertCircle, Info, Check, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function NotificationsPage() {

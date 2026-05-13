@@ -1,7 +1,6 @@
 import React from 'react';
 import { supabase } from "./supabaseClient";
 import { useQuery } from '@tanstack/react-query';
-import { vehicleApi } from './api/vehicleApi';
 import { userApi } from './api/userApi';
 import { notificationApi } from './api/notificationApi';
 import { 

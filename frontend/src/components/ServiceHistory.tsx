@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { vehicleApi } from '../api/vehicleApi';
 import type { ServiceRecord } from '../api/vehicleApi';
-import { X, Wrench, PenTool, RefreshCcw, ClipboardCheck, Clock, Plus, DollarSign, Gauge, TrendingUp, History, Activity } from 'lucide-react';
+import { X, PenTool, RefreshCcw, ClipboardCheck, Clock, Plus, History, Activity } from 'lucide-react';
 import { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ServiceHistoryProps {
@@ -31,7 +31,7 @@ export default function ServiceHistory({ vehicleId, vehiclePlate, onClose }: Ser
     type: 'ROUTINE_MAINTENANCE' as ServiceRecord['type']
   });
 
-  const { data: history = [], isLoading } = useQuery({
+  const { data: history = [] } = useQuery({
     queryKey: ['service-history', vehicleId],
     queryFn: () => vehicleApi.getServiceHistory(vehicleId)
   });
@@ -55,7 +55,7 @@ export default function ServiceHistory({ vehicleId, vehiclePlate, onClose }: Ser
     .map(r => ({
       name: new Date(r.date).toLocaleDateString('ro-RO', { month: 'short', year: '2-digit' }),
       km: r.odometer,
-      cost: r.cost
+      cost: r.cost || 0
     }));
 
   return (
@@ -240,9 +240,9 @@ export default function ServiceHistory({ vehicleId, vehiclePlate, onClose }: Ser
                           <div className="flex items-center gap-2 text-slate-900 font-black text-xl">
                             {record.odometer.toLocaleString()} <span className="text-[10px] text-slate-400 font-bold uppercase">KM</span>
                           </div>
-                          {record.cost > 0 && (
+                          {(record.cost ?? 0) > 0 && (
                             <div className="text-emerald-600 font-bold text-sm bg-emerald-50 px-3 py-1 rounded-full">
-                              {record.cost.toLocaleString()} RON
+                              {(record.cost ?? 0).toLocaleString()} RON
                             </div>
                           )}
                         </div>
@@ -341,3 +341,4 @@ export default function ServiceHistory({ vehicleId, vehiclePlate, onClose }: Ser
     </div>
   );
 }
+

@@ -1,5 +1,4 @@
 import api from './vehicleApi';
-import { User } from './userApi';
 
 export interface Notification {
   id: number;

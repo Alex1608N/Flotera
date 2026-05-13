@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from "./supabaseClient";
-import { LogIn, KeyRound, Mail, UserPlus, ArrowRight, ShieldCheck, Car } from 'lucide-react'
+import { KeyRound, Mail, UserPlus, ArrowRight, ShieldCheck, Car } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Login() {
