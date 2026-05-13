@@ -44,6 +44,24 @@ public class UserController {
         return ResponseEntity.ok(toDto(user));
     }
 
+    @PutMapping("/me/name")
+    public ResponseEntity<UserDto> updateName(
+            @RequestBody Map<String, String> request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String userId = jwt.getSubject();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+        
+        String newName = request.get("name");
+        if (newName != null && !newName.trim().isEmpty()) {
+            user.setName(newName);
+            userRepository.save(user);
+        }
+        
+        return ResponseEntity.ok(toDto(user));
+    }
+
     @GetMapping("/drivers")
     public ResponseEntity<List<UserDto>> getAllDrivers(@AuthenticationPrincipal Jwt jwt) {
         // În viitor se poate filtra și după un organizationId

@@ -1,181 +1,161 @@
-import { useQuery } from '@tanstack/react-query';
-import { vehicleApi } from './api/vehicleApi';
-import type { Vehicle } from './api/vehicleApi';
-import { Bell, Info, Clock, Calendar, Gauge, ExternalLink, Map, AlertTriangle } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { notificationApi } from './api/notificationApi';
+import { Bell, CheckCircle2, AlertTriangle, AlertCircle, Info, Clock, Check, Trash2, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface NotificationsPageProps {
-  onEdit: (vehicle: Vehicle) => void;
-}
+export default function NotificationsPage() {
+  const queryClient = useQueryClient();
 
-export default function NotificationsPage({ onEdit }: NotificationsPageProps) {
-  const { data: vehicles = [], isLoading } = useQuery({
-    queryKey: ['vehicles'],
-    queryFn: vehicleApi.getAll
+  const { data: notifications = [], isLoading } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: notificationApi.getNotifications,
+    refetchInterval: 30000 // Refetch every 30 seconds
   });
 
-  const notifications = vehicles.flatMap(vehicle => {
-    const alerts = [];
-    const now = new Date();
-
-    // ITP
-    if (vehicle.itpExpiration) {
-      const days = Math.ceil((new Date(vehicle.itpExpiration).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      if (days <= 30) {
-        alerts.push({
-          id: `${vehicle.id}-itp`,
-          vehicleObj: vehicle,
-          vehiclePlate: vehicle.licensePlate,
-          type: days <= 0 ? 'CRITICAL' : 'WARNING',
-          message: days <= 0 ? `ITP-ul a expirat!` : `ITP-ul expiră în ${days} zile.`,
-          icon: Calendar
-        });
-      }
+  const markAsReadMutation = useMutation({
+    mutationFn: notificationApi.markAsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
     }
-
-    // RCA
-    if (vehicle.rcaExpiration) {
-      const days = Math.ceil((new Date(vehicle.rcaExpiration).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      if (days <= 30) {
-        alerts.push({
-          id: `${vehicle.id}-rca`,
-          vehicleObj: vehicle,
-          vehiclePlate: vehicle.licensePlate,
-          type: days <= 0 ? 'CRITICAL' : 'WARNING',
-          message: days <= 0 ? `RCA-ul a expirat!` : `RCA-ul expiră în ${days} zile.`,
-          icon: ShieldCheckIcon
-        });
-      }
-    }
-
-    // Rovinietă
-    if (vehicle.rovinietaExpiration) {
-      const days = Math.ceil((new Date(vehicle.rovinietaExpiration).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      if (days <= 30) {
-        alerts.push({
-          id: `${vehicle.id}-ro`,
-          vehicleObj: vehicle,
-          vehiclePlate: vehicle.licensePlate,
-          type: days <= 0 ? 'CRITICAL' : 'WARNING',
-          message: days <= 0 ? `Rovinieta a expirat!` : `Rovinieta expiră în ${days} zile.`,
-          icon: Map
-        });
-      }
-    }
-
-    // Incidente active
-    if (vehicle.hasActiveIncidents) {
-      alerts.push({
-        id: `${vehicle.id}-incident`,
-        vehicleObj: vehicle,
-        vehiclePlate: vehicle.licensePlate,
-        type: 'CRITICAL',
-        message: 'Există probleme tehnice nerezolvate raportate de șofer.',
-        icon: AlertTriangle
-      });
-    }
-
-    // Maintenance KM
-    const kmSinceLast = vehicle.odometer - vehicle.lastMaintenanceKm;
-    if (kmSinceLast >= vehicle.maintenanceThresholdKm - 500) {
-      alerts.push({
-        id: `${vehicle.id}-maint-km`,
-        vehicleObj: vehicle,
-        vehiclePlate: vehicle.licensePlate,
-        type: kmSinceLast >= vehicle.maintenanceThresholdKm ? 'CRITICAL' : 'WARNING',
-        message: kmSinceLast >= vehicle.maintenanceThresholdKm 
-          ? `Revizia este depășită cu ${kmSinceLast - vehicle.maintenanceThresholdKm} km!`
-          : `Revizia se apropie (mai ai ${vehicle.maintenanceThresholdKm - kmSinceLast} km).`,
-        icon: Gauge
-      });
-    }
-
-    return alerts;
   });
+
+  const markAllAsReadMutation = useMutation({
+    mutationFn: notificationApi.markAllAsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
+    }
+  });
+
+  const triggerScanMutation = useMutation({
+    mutationFn: notificationApi.triggerScan,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
+    }
+  });
+
+  const getTypeStyles = (type: string) => {
+    switch (type) {
+      case 'CRITICAL': return { bg: 'bg-rose-50', border: 'border-rose-100', text: 'text-rose-600', icon: AlertCircle, iconBg: 'bg-rose-500' };
+      case 'WARNING': return { bg: 'bg-amber-50', border: 'border-amber-100', text: 'text-amber-600', icon: AlertTriangle, iconBg: 'bg-amber-500' };
+      case 'SUCCESS': return { bg: 'bg-emerald-50', border: 'border-emerald-100', text: 'text-emerald-600', icon: CheckCircle2, iconBg: 'bg-emerald-500' };
+      default: return { bg: 'bg-blue-50', border: 'border-blue-100', text: 'text-blue-600', icon: Info, iconBg: 'bg-blue-500' };
+    }
+  };
 
   if (isLoading) {
-    return <div className="p-8 text-center">Se încarcă notificările...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-bold animate-pulse">SE ÎNCARCĂ ALERTELE...</p>
+      </div>
+    );
   }
 
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-          <Bell className="text-blue-600" />
-          Centru de Notificări
-        </h2>
-        <span className="px-3 py-1 bg-slate-100 text-slate-600 text-sm font-bold rounded-full">
-          {notifications.length} Alerte Active
-        </span>
+    <div className="max-w-4xl mx-auto pb-20">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <div>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            CENTRU DE CONTROL
+          </h2>
+          <p className="text-slate-500 font-medium mt-1">Gerează alertele sistemului și expirările documentelor</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => triggerScanMutation.mutate()}
+            disabled={triggerScanMutation.isPending}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 text-sm font-black rounded-2xl hover:bg-slate-50 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+          >
+            <Zap size={16} className={triggerScanMutation.isPending ? 'animate-pulse text-amber-500' : ''} />
+            SCANARE MANUALĂ
+          </button>
+          
+          {unreadCount > 0 && (
+            <button 
+              onClick={() => markAllAsReadMutation.mutate()}
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-black rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+            >
+              <Check size={16} />
+              MARCHEAZĂ TOT
+            </button>
+          )}
+        </div>
       </div>
 
       {notifications.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-slate-100 shadow-sm">
-          <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Info size={32} />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-[40px] p-16 text-center border border-slate-100 shadow-xl shadow-slate-200/50"
+        >
+          <div className="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 size={48} />
           </div>
-          <h3 className="text-lg font-bold text-slate-900">Totul este sub control</h3>
-          <p className="text-slate-500 mt-1">Nu există documente care expiră sau revizii necesare iminente.</p>
-        </div>
+          <h3 className="text-2xl font-black text-slate-900 mb-2">SISTEM NOMINAL</h3>
+          <p className="text-slate-500 font-medium max-w-sm mx-auto leading-relaxed">
+            Toate documentele sunt valide și nu au fost detectate incidente nerezolvate în flotă.
+          </p>
+        </motion.div>
       ) : (
         <div className="space-y-4">
-          {notifications.map(notif => (
-            <div 
-              key={notif.id} 
-              className={`p-5 rounded-2xl border flex gap-4 transition-all group hover:shadow-md ${
-                notif.type === 'CRITICAL' ? 'bg-red-50 border-red-100' : 'bg-yellow-50 border-yellow-100'
-              }`}
-            >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                notif.type === 'CRITICAL' ? 'bg-red-500 text-white' : 'bg-yellow-500 text-white'
-              }`}>
-                <notif.icon size={24} />
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <h4 className="font-bold text-slate-900">{notif.vehiclePlate}</h4>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                      notif.type === 'CRITICAL' ? 'bg-red-200 text-red-700' : 'bg-yellow-200 text-yellow-700'
-                    }`}>
-                      {notif.type}
-                    </span>
-                    <button 
-                      onClick={() => onEdit(notif.vehicleObj)}
-                      className="p-1.5 bg-white rounded-lg text-slate-400 hover:text-blue-600 border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[10px] font-bold uppercase"
-                    >
-                      <ExternalLink size={12} />
-                      Rezolvă
-                    </button>
+          <AnimatePresence mode="popLayout">
+            {notifications.map((notif, index) => {
+              const styles = getTypeStyles(notif.type);
+              return (
+                <motion.div 
+                  layout
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: index * 0.05 }}
+                  key={notif.id} 
+                  className={`relative p-6 rounded-[32px] border-2 transition-all flex gap-6 ${
+                    notif.isRead 
+                      ? 'bg-white border-slate-50 opacity-60' 
+                      : `${styles.bg} ${styles.border} shadow-lg shadow-slate-200/40`
+                  }`}
+                >
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${styles.iconBg} text-white`}>
+                    <styles.icon size={28} />
                   </div>
-                </div>
-                <p className="text-slate-700 mt-1">{notif.message}</p>
-                <div className="flex items-center gap-2 mt-3 text-xs text-slate-400 font-medium">
-                  <Clock size={12} />
-                  <span>Actualizat acum</span>
-                </div>
-              </div>
-            </div>
-          ))}
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-1">
+                      <h4 className={`text-lg font-black tracking-tight truncate ${notif.isRead ? 'text-slate-500' : 'text-slate-900'}`}>
+                        {notif.title}
+                      </h4>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap ml-4">
+                        {new Date(notif.createdAt).toLocaleDateString('ro-RO', { day: '2-digit', month: 'short' })}
+                      </span>
+                    </div>
+                    <p className={`text-sm font-medium leading-relaxed ${notif.isRead ? 'text-slate-400' : 'text-slate-600'}`}>
+                      {notif.message}
+                    </p>
+                  </div>
+
+                  {!notif.isRead && (
+                    <div className="flex items-center pl-4">
+                      <button 
+                        onClick={() => markAsReadMutation.mutate(notif.id)}
+                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:shadow-md transition-all border border-slate-100 active:scale-90"
+                        title="Marchează ca citită"
+                      >
+                        <Check size={20} />
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       )}
     </div>
-  );
-}
-
-function ShieldCheckIcon({ size }: { size: number }) {
-  return (
-    <svg 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
   );
 }

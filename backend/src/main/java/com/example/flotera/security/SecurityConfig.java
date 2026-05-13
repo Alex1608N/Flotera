@@ -50,9 +50,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/h2-console/**").permitAll()
-                    .requestMatchers("/api/uploads/**").permitAll()
-                    .requestMatchers("/api/public/**").permitAll()
+                    .requestMatchers("/api/uploads/**", "/uploads/**").permitAll()
+                    .requestMatchers("/h2-console/**", "/api/public/**").permitAll()
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/vehicles").authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/vehicles").hasRole("OWNER")
                     .requestMatchers(HttpMethod.PUT, "/api/vehicles/*").hasRole("OWNER")
@@ -126,6 +126,11 @@ public class SecurityConfig {
             User user = userRepository.findById(userId).orElseGet(() -> {
                 String actualEmail = jwt.getClaimAsString("email");
                 Role defaultRole = (actualEmail != null && actualEmail.contains("driver")) ? Role.DRIVER : Role.OWNER;
+                
+                // Forțăm gradul de OWNER pentru alex@flotera.ro conform cerinței
+                if ("alex@flotera.ro".equalsIgnoreCase(actualEmail)) {
+                    defaultRole = Role.OWNER;
+                }
                 
                 User newUser = new User(userId, actualEmail != null ? actualEmail : "user@local", "Utilizator Supabase", defaultRole);
                 return userRepository.save(newUser);

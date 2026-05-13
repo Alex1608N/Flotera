@@ -3,6 +3,7 @@ import { supabase } from "./supabaseClient";
 import { useQuery } from '@tanstack/react-query';
 import { vehicleApi } from './api/vehicleApi';
 import { userApi } from './api/userApi';
+import { notificationApi } from './api/notificationApi';
 import { 
   LayoutDashboard, 
   Car, 
@@ -28,17 +29,16 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
     queryFn: userApi.getCurrentUser
   });
 
-  const { data: vehicles = [] } = useQuery({
-    queryKey: ['vehicles'],
-    queryFn: vehicleApi.getAll
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['unread-notifications-count'],
+    queryFn: notificationApi.getUnreadCount,
+    refetchInterval: 30000
   });
-
-  const alertCount = vehicles.filter(v => v.status !== 'OK').length;
 
   const navigation = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'fleet', name: 'Flota Mea', icon: Car },
-    { id: 'notifications', name: 'Notificări', icon: Bell, badge: alertCount },
+    { id: 'notifications', name: 'Notificări', icon: Bell, badge: unreadCount },
     { id: 'profile', name: 'Profilul Meu', icon: UserIcon },
   ];
 
@@ -118,9 +118,6 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
           <h2 className="text-lg font-semibold text-gray-800">Panou de Control</h2>
           <div className="flex items-center space-x-4">
              {/* Aici putem adăuga un mic badge de status sau notificări rapide */}
-             <div className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wider">
-               Sistem Activ
-             </div>
           </div>
         </header>
 

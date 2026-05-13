@@ -1,6 +1,9 @@
 package com.example.flotera.incident;
 
 import com.example.flotera.incident.dto.IncidentResponse;
+import com.example.flotera.vehicle.ServiceRecord;
+import com.example.flotera.vehicle.ServiceRecordRepository;
+import com.example.flotera.vehicle.ServiceType;
 import com.example.flotera.vehicle.Vehicle;
 import com.example.flotera.vehicle.VehicleRepository;
 import com.example.flotera.storage.StorageService;
@@ -18,11 +21,16 @@ public class IncidentService {
     private final IncidentRepository incidentRepository;
     private final VehicleRepository vehicleRepository;
     private final StorageService storageService;
+    private final ServiceRecordRepository serviceRecordRepository;
 
-    public IncidentService(IncidentRepository incidentRepository, VehicleRepository vehicleRepository, StorageService storageService) {
+    public IncidentService(IncidentRepository incidentRepository, 
+                           VehicleRepository vehicleRepository, 
+                           StorageService storageService,
+                           ServiceRecordRepository serviceRecordRepository) {
         this.incidentRepository = incidentRepository;
         this.vehicleRepository = vehicleRepository;
         this.storageService = storageService;
+        this.serviceRecordRepository = serviceRecordRepository;
     }
 
     @Transactional
@@ -72,8 +80,20 @@ public class IncidentService {
 
         incident.setStatus(IncidentStatus.RESOLVED);
         incident.setResolvedAt(LocalDateTime.now());
+        Incident saved = incidentRepository.save(incident);
+
+        // Sincronizare cu Istoric Service
+        ServiceRecord record = new ServiceRecord(
+                incident.getVehicle(),
+                saved.getResolvedAt().toLocalDate(),
+                incident.getVehicle().getOdometer(), // Folosim odometrul curent al mașinii
+                "REPARAȚIE INCIDENT: " + incident.getDescription(),
+                0.0, // Costul va fi editat ulterior în service history dacă e cazul
+                ServiceType.REPAIR
+        );
+        serviceRecordRepository.save(record);
         
-        return mapToResponse(incidentRepository.save(incident));
+        return mapToResponse(saved);
     }
 
     private IncidentResponse mapToResponse(Incident incident) {
