@@ -63,47 +63,48 @@ export default function ServiceHistory({ vehicleId, vehiclePlate, onClose }: Ser
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-[#f8fafc] rounded-[32px] w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border border-white/20"
+        className="bg-[#f8fafc] rounded-2xl md:rounded-[32px] w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] border border-white/20"
       >
         {/* Modern Header */}
-        <div className="p-8 pb-4 flex justify-between items-start">
+        <div className="p-4 md:p-8 pb-4 flex justify-between items-start">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight">LOG SERVICE</h3>
+              <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">LOG SERVICE</h3>
               <span className="px-3 py-1 bg-blue-600 text-white text-[10px] font-black rounded-full tracking-widest uppercase">{vehiclePlate}</span>
             </div>
-            <p className="text-slate-500 font-medium text-sm">Monitorizarea mentenanței și a rulajului</p>
+            <p className="text-slate-500 font-medium text-xs md:text-sm">Monitorizarea mentenanței și a rulajului</p>
           </div>
-          <button onClick={onClose} className="p-2.5 bg-white hover:bg-slate-100 rounded-full transition-all text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100">
+          <button onClick={onClose} className="p-2 md:p-2.5 bg-white hover:bg-slate-100 rounded-full transition-all text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100">
             <X size={20} />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="px-8 flex gap-8 border-b border-slate-200">
+        <div className="px-4 md:px-8 flex gap-4 md:gap-8 border-b border-slate-200">
           <button 
             onClick={() => setActiveTab('list')}
-            className={`pb-4 text-sm font-bold transition-all relative ${activeTab === 'list' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`pb-4 text-xs md:text-sm font-bold transition-all relative ${activeTab === 'list' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
           >
             <div className="flex items-center gap-2">
-              <History size={18} />
-              CRONOLOGIE
+              <History size={16} className="md:w-5 md:h-5" />
+              <span className="hidden sm:inline">CRONOLOGIE</span>
+              <span className="sm:hidden">LISTĂ</span>
             </div>
             {activeTab === 'list' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full" />}
           </button>
           <button 
             onClick={() => setActiveTab('analytics')}
-            className={`pb-4 text-sm font-bold transition-all relative ${activeTab === 'analytics' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`pb-4 text-xs md:text-sm font-bold transition-all relative ${activeTab === 'analytics' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
           >
             <div className="flex items-center gap-2">
-              <Activity size={18} />
-              ANALITICĂ KM
+              <Activity size={16} className="md:w-5 md:h-5" />
+              ANALITICĂ <span className="hidden sm:inline">KM</span>
             </div>
             {activeTab === 'analytics' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full" />}
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
           <AnimatePresence mode="wait">
             {activeTab === 'list' ? (
               <motion.div 
@@ -259,18 +260,18 @@ export default function ServiceHistory({ vehicleId, vehiclePlate, onClose }: Ser
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-8"
               >
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                <div className="bg-white p-4 md:p-8 rounded-[24px] md:rounded-[32px] border border-slate-100 shadow-sm">
                   <div className="flex items-center gap-3 mb-8">
-                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shrink-0">
                       <TrendingUp size={24} />
                     </div>
                     <div>
-                      <h4 className="text-xl font-black text-slate-900 leading-tight">EVOLUȚIE KILOMETRAJ</h4>
-                      <p className="text-slate-500 text-sm font-medium">Progresia rulajului în timp conform înregistrărilor</p>
+                      <h4 className="text-lg md:text-xl font-black text-slate-900 leading-tight">EVOLUȚIE KILOMETRAJ</h4>
+                      <p className="text-slate-500 text-xs md:text-sm font-medium">Progresia rulajului în timp conform înregistrărilor</p>
                     </div>
                   </div>
                   
-                  <div className="h-[350px] w-full">
+                  <div className="h-[250px] md:h-[350px] w-full">
                     {chartData.length > 1 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>

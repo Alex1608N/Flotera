@@ -18,16 +18,12 @@ export const userApi = {
   uploadProfilePicture: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return api.post<User>('/users/me/profile-picture/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(res => res.data);
+    return api.post<User>('/users/me/profile-picture/upload', formData).then(res => res.data);
   },
   
   uploadOtherUserProfilePictureFile: (userId: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return api.post<User>(`/users/${userId}/profile-picture/upload`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(res => res.data);
+    return api.post<User>(`/users/${userId}/profile-picture/upload`, formData).then(res => res.data);
   }
 };

@@ -109,7 +109,7 @@ export default function ProfilePage() {
             <div className="relative inline-block">
               <div className="w-32 h-32 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-xl">
                 {user.profilePictureUrl ? (
-                  <img src={user.profilePictureUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={user.profilePictureUrl.startsWith('http') ? user.profilePictureUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}${user.profilePictureUrl}`} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <UserIcon size={48} className="text-slate-400" />
                 )}

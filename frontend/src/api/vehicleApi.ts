@@ -68,9 +68,7 @@ export const vehicleApi = {
   uploadImage: (id: number, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return api.post<{ imageUrl: string }>(`/vehicles/${id}/image`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(res => res.data);
+    return api.post<{ imageUrl: string }>(`/vehicles/${id}/image`, formData).then(res => res.data);
   },
   updateOdometer: (id: number, odometer: number) => api.post<Vehicle>(`/vehicles/${id}/odometer`, { odometer }).then(res => res.data),
   
@@ -82,9 +80,7 @@ export const vehicleApi = {
     if (file) {
       formData.append('file', file);
     }
-    return api.post<Incident>(`/vehicles/${vehicleId}/incidents`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(res => res.data);
+    return api.post<Incident>(`/vehicles/${vehicleId}/incidents`, formData).then(res => res.data);
   },
   resolveIncident: (incidentId: number) => api.patch<Incident>(`/vehicles/incidents/${incidentId}/resolve`).then(res => res.data),
 

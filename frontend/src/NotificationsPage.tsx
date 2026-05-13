@@ -115,32 +115,46 @@ export default function NotificationsPage() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ delay: index * 0.05 }}
                   key={notif.id} 
-                  className={`relative p-6 rounded-[32px] border-2 transition-all flex gap-6 ${
+                  className={`relative p-4 md:p-6 rounded-[24px] md:rounded-[32px] border-2 transition-all flex flex-col sm:flex-row gap-4 md:gap-6 ${
                     notif.isRead 
                       ? 'bg-white border-slate-50 opacity-60' 
                       : `${styles.bg} ${styles.border} shadow-lg shadow-slate-200/40`
                   }`}
                 >
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${styles.iconBg} text-white`}>
-                    <styles.icon size={28} />
+                  <div className="flex justify-between items-start sm:items-center w-full sm:w-auto">
+                    <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${styles.iconBg} text-white`}>
+                      <styles.icon size={24} className="md:w-7 md:h-7" />
+                    </div>
+                    
+                    {!notif.isRead && (
+                      <div className="sm:hidden flex items-center">
+                        <button 
+                          onClick={() => markAsReadMutation.mutate(notif.id)}
+                          className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:shadow-md transition-all border border-slate-100 active:scale-90"
+                          title="Marchează ca citită"
+                        >
+                          <Check size={20} />
+                        </button>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className={`text-lg font-black tracking-tight truncate ${notif.isRead ? 'text-slate-500' : 'text-slate-900'}`}>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-1 gap-1 sm:gap-0">
+                      <h4 className={`text-base md:text-lg font-black tracking-tight truncate ${notif.isRead ? 'text-slate-500' : 'text-slate-900'}`}>
                         {notif.title}
                       </h4>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap ml-4">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap sm:ml-4">
                         {new Date(notif.createdAt).toLocaleDateString('ro-RO', { day: '2-digit', month: 'short' })}
                       </span>
                     </div>
-                    <p className={`text-sm font-medium leading-relaxed ${notif.isRead ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <p className={`text-sm font-medium leading-relaxed mt-1 md:mt-0 ${notif.isRead ? 'text-slate-400' : 'text-slate-600'}`}>
                       {notif.message}
                     </p>
                   </div>
 
                   {!notif.isRead && (
-                    <div className="flex items-center pl-4">
+                    <div className="hidden sm:flex items-center pl-4">
                       <button 
                         onClick={() => markAsReadMutation.mutate(notif.id)}
                         className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:shadow-md transition-all border border-slate-100 active:scale-90"

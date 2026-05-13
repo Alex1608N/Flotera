@@ -119,8 +119,8 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
             </div>
 
             {/* Câmpuri Text */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Model Vehicul</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -162,7 +162,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Seria de Șasiu (VIN)</label>
                 <input 
                   type="text" 
@@ -176,7 +176,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Șofer Asignat</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -198,7 +198,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
               </div>
 
               {/* Sectiune Documente */}
-              <div className="col-span-2 mt-4">
+              <div className="md:col-span-2 mt-4">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b pb-2">Documente Legale</h3>
                 <div className="space-y-4">
                   <div>
@@ -232,10 +232,10 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
               </div>
 
               {/* Sectiune Mentenanță */}
-              <div className="col-span-2 mt-4">
+              <div className="md:col-span-2 mt-4">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b pb-2">Mentenanță</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
                     <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Ultima Revizie (KM)</label>
                     <input 
                       type="number" 
@@ -245,7 +245,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                       onChange={e => setFormData({...formData, lastMaintenanceKm: parseInt(e.target.value) || 0})}
                     />
                   </div>
-                  <div className="col-span-2">
+                  <div className="md:col-span-2">
                     <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Data Ultimei Revizii</label>
                     <input 
                       type="date" 
