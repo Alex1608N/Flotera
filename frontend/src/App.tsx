@@ -90,7 +90,7 @@ function App() {
           onShowHistory={handleShowHistory}
         />
       )}
-      {currentPage === 'notifications' && <NotificationsPage onEdit={handleEdit} />}
+      {currentPage === 'notifications' && <NotificationsPage />}
       {currentPage === 'profile' && <ProfilePage />}
 
       {isFormOpen && (

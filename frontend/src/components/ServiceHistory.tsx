@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { vehicleApi } from '../api/vehicleApi';
 import type { ServiceRecord } from '../api/vehicleApi';
-import { X, PenTool, RefreshCcw, ClipboardCheck, Clock, Plus, History, Activity } from 'lucide-react';
+import { X, PenTool, RefreshCcw, ClipboardCheck, Clock, Plus, History, Activity, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
