@@ -46,8 +46,8 @@ public class IncidentService {
         Incident incident = new Incident(vehicle, description);
         
         if (file != null && !file.isEmpty()) {
-            String imageUrl = storageService.store(file, "incidents");
-            incident.setImageUrl(imageUrl);
+            String path = storageService.store(file, "incidents");
+            incident.setImageUrl("/api/uploads/" + path);
         }
 
         Incident saved = incidentRepository.save(incident);

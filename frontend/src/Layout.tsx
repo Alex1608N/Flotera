@@ -10,7 +10,8 @@ import {
   LogOut, 
   User as UserIcon,
   Menu,
-  X
+  X,
+  Users
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -37,6 +38,7 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
   const navigation = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'fleet', name: 'Flota Mea', icon: Car },
+    { id: 'drivers', name: 'Management Șoferi', icon: Users, role: 'OWNER' },
     { id: 'notifications', name: 'Notificări', icon: Bell, badge: unreadCount },
     { id: 'profile', name: 'Profilul Meu', icon: UserIcon },
   ];
@@ -55,9 +57,10 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
         </div>
 
         <nav className="flex-1 px-4 space-y-2">
-          {navigation.map((item) => {
-            // Ascunde Flota Mea pentru șoferi
+          {navigation.map((item: any) => {
+            // Ascunde pagini bazat pe rol
             if (item.id === 'fleet' && user?.role === 'DRIVER') return null;
+            if (item.role === 'OWNER' && user?.role !== 'OWNER') return null;
 
             return (
               <button

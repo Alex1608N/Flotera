@@ -62,6 +62,29 @@ public class UserController {
         return ResponseEntity.ok(toDto(user));
     }
 
+    @PutMapping("/{targetUserId}/profile-picture")
+    public ResponseEntity<UserDto> updateOtherUserProfilePicture(
+            @PathVariable String targetUserId,
+            @RequestBody Map<String, String> request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String requesterId = jwt.getSubject();
+        User requester = userRepository.findById(requesterId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+
+        if (requester.getRole() != Role.OWNER) {
+            throw new SecurityException("Doar proprietarii pot modifica profilele altor utilizatori.");
+        }
+
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul țintă nu a fost găsit."));
+
+        targetUser.setProfilePictureUrl(request.get("profilePictureUrl"));
+        userRepository.save(targetUser);
+
+        return ResponseEntity.ok(toDto(targetUser));
+    }
+
     @GetMapping("/drivers")
     public ResponseEntity<List<UserDto>> getAllDrivers(@AuthenticationPrincipal Jwt jwt) {
         // În viitor se poate filtra și după un organizationId

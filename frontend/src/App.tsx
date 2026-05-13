@@ -7,6 +7,7 @@ import FleetPage from './FleetPage'
 import DashboardPage from './DashboardPage'
 import NotificationsPage from './NotificationsPage'
 import ProfilePage from './ProfilePage'
+import DriversPage from './DriversPage'
 import VehicleForm from './components/VehicleForm'
 import IncidentList from './components/IncidentList'
 import IncidentForm from './components/IncidentForm'
@@ -90,6 +91,7 @@ function App() {
           onShowHistory={handleShowHistory}
         />
       )}
+      {currentPage === 'drivers' && <DriversPage />}
       {currentPage === 'notifications' && <NotificationsPage />}
       {currentPage === 'profile' && <ProfilePage />}
 

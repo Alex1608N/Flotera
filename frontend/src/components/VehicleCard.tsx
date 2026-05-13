@@ -201,16 +201,32 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">An Fabricație</p>
-            <p className="text-sm font-medium text-slate-700">{vehicle.year}</p>
-          </div>
-          <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Seria Șasiu</p>
-            <p className="text-sm font-medium text-slate-700 truncate" title={vehicle.vin}>
+        <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Seria Șasiu</p>
+            <p className="text-xs font-mono font-medium text-slate-700 truncate w-24" title={vehicle.vin}>
               {vehicle.vin.substring(0, 8)}...
             </p>
+          </div>
+          
+          <div className="flex items-center gap-2 text-right">
+            <div className="flex flex-col">
+              <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Șofer Asignat</p>
+              <p className="text-xs font-bold text-slate-700 truncate w-24">
+                {vehicle.assignedDriverName || 'Neasignat'}
+              </p>
+            </div>
+            {vehicle.assignedDriverName && (
+              <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center">
+                {vehicle.assignedDriverProfilePictureUrl ? (
+                  <img src={vehicle.assignedDriverProfilePictureUrl} alt={vehicle.assignedDriverName} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-[10px] font-bold text-slate-400">
+                    {vehicle.assignedDriverName.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

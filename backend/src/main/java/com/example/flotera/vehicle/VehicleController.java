@@ -137,6 +137,7 @@ public class VehicleController {
                 v.getOwner().getId(),
                 v.getAssignedDriver() != null ? v.getAssignedDriver().getId() : null,
                 v.getAssignedDriver() != null ? v.getAssignedDriver().getName() : null,
+                v.getAssignedDriver() != null ? v.getAssignedDriver().getProfilePictureUrl() : null,
                 v.getImageUrl(),
                 v.getItpExpiration(),
                 v.getRcaExpiration(),

@@ -80,7 +80,7 @@ export default function IncidentList({ vehicleId, vehiclePlate, onClose }: Incid
                   {incident.imageUrl && (
                     <div className="mb-4 rounded-xl overflow-hidden border border-slate-200">
                       <img 
-                        src={`http://localhost:8080${incident.imageUrl}`} 
+                        src={`${import.meta.env.VITE_API_URL.replace('/api', '')}${incident.imageUrl}`} 
                         alt="Incident" 
                         className="w-full h-auto object-cover max-h-48"
                       />

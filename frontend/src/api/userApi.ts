@@ -13,4 +13,5 @@ export const userApi = {
   getAllDrivers: () => api.get<User[]>('/users/drivers').then(res => res.data),
   updateProfilePicture: (profilePictureUrl: string) => api.put<User>('/users/me/profile-picture', { profilePictureUrl }).then(res => res.data),
   updateName: (name: string) => api.put<User>('/users/me/name', { name }).then(res => res.data),
+  updateOtherUserProfilePicture: (userId: string, profilePictureUrl: string) => api.put<User>(`/users/${userId}/profile-picture`, { profilePictureUrl }).then(res => res.data),
 };

@@ -12,6 +12,7 @@ public record VehicleResponse(
         String ownerId,
         String assignedDriverId,
         String assignedDriverName,
+        String assignedDriverProfilePictureUrl,
         String imageUrl,
         LocalDate itpExpiration,
         LocalDate rcaExpiration,
