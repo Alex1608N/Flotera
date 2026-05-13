@@ -14,4 +14,20 @@ export const userApi = {
   updateProfilePicture: (profilePictureUrl: string) => api.put<User>('/users/me/profile-picture', { profilePictureUrl }).then(res => res.data),
   updateName: (name: string) => api.put<User>('/users/me/name', { name }).then(res => res.data),
   updateOtherUserProfilePicture: (userId: string, profilePictureUrl: string) => api.put<User>(`/users/${userId}/profile-picture`, { profilePictureUrl }).then(res => res.data),
+  
+  uploadProfilePicture: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post<User>('/users/me/profile-picture/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(res => res.data);
+  },
+  
+  uploadOtherUserProfilePictureFile: (userId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post<User>(`/users/${userId}/profile-picture/upload`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(res => res.data);
+  }
 };

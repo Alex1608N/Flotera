@@ -30,14 +30,6 @@ export default function ProfilePage() {
     }
   }, [user]);
 
-  const updateProfilePicMutation = useMutation({
-    mutationFn: userApi.updateProfilePicture,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-      showFeedback('Poza de profil a fost actualizată!', 'success');
-    }
-  });
-
   const updateNameMutation = useMutation({
     mutationFn: userApi.updateName,
     onSuccess: () => {
@@ -56,16 +48,10 @@ export default function ProfilePage() {
       setUploading(true);
       if (!event.target.files || event.target.files.length === 0) return;
       const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${user?.id}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      
-      updateProfilePicMutation.mutate(data.publicUrl);
+      await userApi.uploadProfilePicture(file);
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      showFeedback('Poza de profil a fost actualizată!', 'success');
     } catch (error) {
       showFeedback('Eroare la încărcarea pozei!', 'error');
       console.error(error);

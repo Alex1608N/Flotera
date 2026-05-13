@@ -1,10 +1,12 @@
 package com.example.flotera.user;
 
+import com.example.flotera.storage.StorageService;
 import com.example.flotera.user.dto.UserDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -15,9 +17,11 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final StorageService storageService;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, StorageService storageService) {
         this.userRepository = userRepository;
+        this.storageService = storageService;
     }
 
     @GetMapping("/me")
@@ -26,6 +30,22 @@ public class UserController {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
         
+        return ResponseEntity.ok(toDto(user));
+    }
+
+    @PostMapping("/me/profile-picture/upload")
+    public ResponseEntity<UserDto> uploadMyProfilePicture(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String userId = jwt.getSubject();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+
+        String path = storageService.store(file, "avatars");
+        user.setProfilePictureUrl("/api/uploads/" + path);
+        userRepository.save(user);
+
         return ResponseEntity.ok(toDto(user));
     }
 
@@ -60,6 +80,30 @@ public class UserController {
         }
         
         return ResponseEntity.ok(toDto(user));
+    }
+
+    @PostMapping("/{targetUserId}/profile-picture/upload")
+    public ResponseEntity<UserDto> uploadOtherUserProfilePicture(
+            @PathVariable String targetUserId,
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String requesterId = jwt.getSubject();
+        User requester = userRepository.findById(requesterId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+
+        if (requester.getRole() != Role.OWNER) {
+            throw new SecurityException("Doar proprietarii pot încărca profilele altor utilizatori.");
+        }
+
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul țintă nu a fost găsit."));
+
+        String path = storageService.store(file, "avatars");
+        targetUser.setProfilePictureUrl("/api/uploads/" + path);
+        userRepository.save(targetUser);
+
+        return ResponseEntity.ok(toDto(targetUser));
     }
 
     @PutMapping("/{targetUserId}/profile-picture")
