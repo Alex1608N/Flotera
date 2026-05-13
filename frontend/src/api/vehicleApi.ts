@@ -24,6 +24,7 @@ export interface Vehicle {
   vin: string;
   assignedDriverId?: string;
   assignedDriverName?: string;
+  assignedDriverProfilePictureUrl?: string;
   imageUrl?: string;
   ownerId: string;
   itpExpiration?: string;

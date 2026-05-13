@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userApi } from './api/userApi';
-import type { User } from './api/userApi';
 import { supabase } from './supabaseClient';
 import { Upload, User as UserIcon, Users, Mail, Shield, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
