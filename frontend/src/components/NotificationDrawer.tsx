@@ -1,7 +1,6 @@
-import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationApi } from '../api/notificationApi';
-import { X, Check, Bell, Zap, AlertTriangle, AlertCircle, Info, CheckCircle2, Trash2 } from 'lucide-react';
+import { X, Check, Bell, Zap, AlertTriangle, AlertCircle, Info, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface NotificationDrawerProps {

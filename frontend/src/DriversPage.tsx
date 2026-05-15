@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userApi } from './api/userApi';
 import { vehicleApi } from './api/vehicleApi';
-import { Upload, User as UserIcon, Users, Mail, CheckCircle2, AlertCircle, Car, RefreshCw } from 'lucide-react';
+import { Upload, User as UserIcon, Users, Mail, CheckCircle2, AlertCircle, Car } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DriversPage() {
@@ -32,15 +32,6 @@ export default function DriversPage() {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       showFeedback('Vehiculul a fost asignat cu succes!', 'success');
       setAssigningDriverId(null);
-    }
-  });
-
-  const toggleRoleMutation = useMutation({
-    mutationFn: userApi.toggleRole,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      showFeedback('Rolul a fost actualizat!', 'success');
     }
   });
 
