@@ -70,7 +70,6 @@ function App() {
 
   return (
     <Layout 
-      userEmail={session.user.email ?? ''} 
       currentPage={currentPage} 
       onNavigate={setCurrentPage}
     >

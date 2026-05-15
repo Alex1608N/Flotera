@@ -16,12 +16,11 @@ import {
 
 interface LayoutProps {
   children: React.ReactNode;
-  userEmail?: string;
   currentPage: string;
   onNavigate: (page: string) => void;
 }
 
-export default function Layout({ children, userEmail, currentPage, onNavigate }: LayoutProps) {
+export default function Layout({ children, currentPage, onNavigate }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
