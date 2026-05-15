@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userApi } from './api/userApi';
 import { vehicleApi } from './api/vehicleApi';
 import type { Vehicle } from './api/vehicleApi';
 import { supabase } from './supabaseClient';
-import { Upload, User as UserIcon, Save, KeyRound, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Upload, User as UserIcon, Save, KeyRound, CheckCircle2, AlertCircle, RefreshCw, Car } from 'lucide-react';
 
 export default function ProfilePage() {
   const queryClient = useQueryClient();
@@ -24,11 +24,12 @@ export default function ProfilePage() {
     queryFn: vehicleApi.getAll
   });
 
-  useEffect(() => {
-    if (user?.name) {
-      setName(user.name);
-    }
-  }, [user]);
+  // Pattern pentru sincronizarea stării din props (recomandat de React în loc de useEffect)
+  const [prevUserId, setPrevUserId] = useState<string | undefined>(undefined);
+  if (user?.id !== prevUserId) {
+    setPrevUserId(user?.id);
+    setName(user?.name || '');
+  }
 
   const updateNameMutation = useMutation({
     mutationFn: userApi.updateName,
@@ -253,27 +254,5 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
-  );
-}
-
-// Helper icon component for Car (missing in previous imports if not careful)
-function Car({ size }: { size: number }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2.1 10.9 2 11 2 11.1V16c0 .6.4 1 1 1h2" />
-      <circle cx="7" cy="17" r="2" />
-      <path d="M9 17h6" />
-      <circle cx="17" cy="17" r="2" />
-    </svg>
   );
 }

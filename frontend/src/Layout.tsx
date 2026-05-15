@@ -25,11 +25,6 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
-  // Auto-close mobile menu on navigation
-  React.useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [currentPage]);
-
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: userApi.getCurrentUser
@@ -41,13 +36,26 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
     refetchInterval: 30000
   });
 
-  const navigation = [
+  interface NavigationItem {
+    id: string;
+    name: string;
+    icon: React.ElementType;
+    role?: string;
+    badge?: number;
+  }
+
+  const navigation: NavigationItem[] = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'fleet', name: 'Flota Mea', icon: Car },
     { id: 'drivers', name: 'Management Șoferi', icon: Users, role: 'OWNER' },
     { id: 'notifications', name: 'Notificări', icon: Bell, badge: unreadCount },
     { id: 'profile', name: 'Profilul Meu', icon: UserIcon },
   ];
+
+  const handleNavigate = (page: string) => {
+    onNavigate(page);
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -74,7 +82,7 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
         </div>
 
         <nav className="flex-1 px-3 md:px-4 space-y-2 overflow-y-auto">
-          {navigation.map((item: any) => {
+          {navigation.map((item) => {
             // Ascunde pagini bazat pe rol
             if (item.id === 'fleet' && user?.role === 'DRIVER') return null;
             if (item.role === 'OWNER' && user?.role !== 'OWNER') return null;
@@ -82,7 +90,7 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
             return (
               <button
                 key={item.id}
-                onClick={() => onNavigate(item.id)}
+                onClick={() => handleNavigate(item.id)}
                 className={`w-full flex items-center p-3 rounded-xl transition-colors group ${
                   currentPage === item.id 
                     ? 'bg-blue-600 text-white shadow-md' 
@@ -106,7 +114,7 @@ export default function Layout({ children, userEmail, currentPage, onNavigate }:
         </nav>
 
         <div className="p-4 border-t border-slate-800">
-          <button onClick={() => onNavigate('profile')} className="w-full flex items-center p-2 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer text-left">
+          <button onClick={() => handleNavigate('profile')} className="w-full flex items-center p-2 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer text-left">
             <div className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-blue-500 flex items-center justify-center overflow-hidden shrink-0">
               {user?.profilePictureUrl ? (
                 <img src={user.profilePictureUrl.startsWith('http') ? user.profilePictureUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}${user.profilePictureUrl}`} alt="Avatar" className="w-full h-full object-cover" />
