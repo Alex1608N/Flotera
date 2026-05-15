@@ -176,6 +176,23 @@ public class UserController {
         return ResponseEntity.ok(toDto(targetUser));
     }
 
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getAllUsers(@AuthenticationPrincipal Jwt jwt) {
+        String requesterId = jwt.getSubject();
+        User requester = userRepository.findById(requesterId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+
+        if (requester.getRole() != Role.OWNER) {
+            throw new SecurityException("Doar proprietarii pot vedea lista completă de utilizatori.");
+        }
+
+        List<User> users = userRepository.findAll();
+        List<UserDto> dtos = users.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
     @GetMapping("/drivers")
     public ResponseEntity<List<UserDto>> getAllDrivers(@AuthenticationPrincipal Jwt jwt) {
         // În viitor se poate filtra și după un organizationId

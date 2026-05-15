@@ -16,9 +16,9 @@ export default function DriversPage() {
     queryFn: userApi.getCurrentUser
   });
 
-  const { data: drivers = [], isLoading } = useQuery({
-    queryKey: ['drivers'],
-    queryFn: userApi.getAllDrivers
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ['users'],
+    queryFn: userApi.getAllUsers
   });
 
   const { data: vehicles = [] } = useQuery({
@@ -39,7 +39,7 @@ export default function DriversPage() {
     mutationFn: userApi.toggleRole,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-      queryClient.invalidateQueries({ queryKey: ['drivers'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       showFeedback('Rolul a fost actualizat!', 'success');
     }
   });
@@ -47,7 +47,7 @@ export default function DriversPage() {
   const updateDriverRoleMutation = useMutation({
     mutationFn: ({ userId, role }: { userId: string, role: 'OWNER' | 'DRIVER' }) => userApi.updateUserRole(userId, role),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['drivers'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       showFeedback('Gradul utilizatorului a fost actualizat!', 'success');
     }
   });
@@ -65,7 +65,7 @@ export default function DriversPage() {
 
       await userApi.uploadOtherUserProfilePictureFile(targetUserId, file);
       
-      queryClient.invalidateQueries({ queryKey: ['drivers'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       showFeedback('Poza de profil a fost actualizată!', 'success');
     } catch (error) {
@@ -76,7 +76,7 @@ export default function DriversPage() {
     }
   };
 
-  if (isLoading) return <div className="p-8 text-center">Se încarcă lista de șoferi...</div>;
+  if (isLoading) return <div className="p-8 text-center text-slate-500 font-bold animate-pulse">Se încarcă lista de utilizatori...</div>;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12 relative">
@@ -106,9 +106,9 @@ export default function DriversPage() {
               className="bg-white rounded-[32px] w-full max-w-md p-8 shadow-2xl"
             >
               <h3 className="text-xl font-black text-slate-900 mb-4">Asignează un vehicul</h3>
-              <p className="text-slate-500 mb-6 text-sm">Selectează vehiculul pe care vrei să îl conduca acest șofer.</p>
+              <p className="text-slate-500 mb-6 text-sm">Selectează vehiculul pe care vrei să îl conduca acest utilizator.</p>
               
-              <div className="space-y-3 max-h-60 overflow-y-auto mb-6 pr-2">
+              <div className="space-y-3 max-h-60 overflow-y-auto mb-6 pr-2 custom-scrollbar">
                 {vehicles.map(v => (
                   <button
                     key={v.id}
@@ -136,10 +136,8 @@ export default function DriversPage() {
                 >
                   Anulează
                 </button>
-                {/* Option to unassign all vehicles for this driver */}
                 <button 
                   onClick={() => {
-                     // Find vehicles currently assigned to this driver and unassign them
                      vehicles.filter(v => v.assignedDriverId === assigningDriverId).forEach(v => {
                          assignDriverMutation.mutate({ vehicleId: v.id, driverId: null });
                      });
@@ -159,31 +157,21 @@ export default function DriversPage() {
         <div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
             <Users className="text-blue-600" />
-            MANAGEMENT ȘOFERI
+            MANAGEMENT ECHIPĂ
           </h2>
-          <p className="text-slate-500 font-medium mt-1">Gestionează profilurile și accesul personalului tău</p>
+          <p className="text-slate-500 font-medium mt-1">Gestionează toți utilizatorii și permisiunile acestora</p>
         </div>
         
         <div className="flex flex-wrap items-center gap-4">
-          {/* Buton simulare schimbare rol */}
-          <button 
-            onClick={() => toggleRoleMutation.mutate()}
-            disabled={toggleRoleMutation.isPending}
-            className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-100 hover:border-blue-500 hover:bg-blue-50 text-slate-700 font-bold rounded-2xl transition-all shadow-sm active:scale-95 disabled:opacity-50"
-          >
-            <RefreshCw size={20} className={`text-blue-600 ${toggleRoleMutation.isPending ? 'animate-spin' : ''}`} />
-            {currentUser?.role === 'OWNER' ? 'Devino Șofer' : 'Revino la Proprietar'}
-          </button>
-
           <div className="bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-2">
-              <span className="text-2xl font-black text-blue-600">{drivers.length}</span>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Șoferi activi</span>
+              <span className="text-2xl font-black text-blue-600">{users.length}</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Utilizatori</span>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {drivers.map((driver, index) => {
+        {users.map((driver, index) => {
           const assignedVehicles = vehicles.filter(v => v.assignedDriverId === driver.id);
           
           return (
@@ -192,28 +180,30 @@ export default function DriversPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               key={driver.id} 
-              className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden"
+              className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden flex flex-col"
             >
               {/* Profile Image Section */}
-              <div className="flex flex-col items-center text-center relative z-10">
+              <div className="flex flex-col items-center text-center relative z-10 flex-1">
                 <div className="relative mb-6">
                   <div className="w-24 h-24 rounded-full bg-slate-50 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300">
                     {driver.profilePictureUrl ? (
-                      <img src={`${import.meta.env.VITE_API_URL.replace('/api', '')}${driver.profilePictureUrl}`} alt={driver.name} className="w-full h-full object-cover" />
+                      <img src={driver.profilePictureUrl.startsWith('http') ? driver.profilePictureUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}${driver.profilePictureUrl}`} alt={driver.name} className="w-full h-full object-cover" />
                     ) : (
                       <UserIcon size={40} className="text-slate-300" />
                     )}
                   </div>
-                  <label className="absolute bottom-0 right-0 p-2 bg-blue-600 rounded-full text-white cursor-pointer hover:bg-blue-700 transition-all shadow-lg hover:scale-110 active:scale-95">
-                    <Upload size={14} />
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={(e) => handleFileUpload(e, driver.id)} 
-                      disabled={uploadingId === driver.id} 
-                      className="hidden" 
-                    />
-                  </label>
+                  {currentUser?.role === 'OWNER' && (
+                    <label className="absolute bottom-0 right-0 p-2 bg-blue-600 rounded-full text-white cursor-pointer hover:bg-blue-700 transition-all shadow-lg hover:scale-110 active:scale-95">
+                      <Upload size={14} />
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => handleFileUpload(e, driver.id)} 
+                        disabled={uploadingId === driver.id} 
+                        className="hidden" 
+                      />
+                    </label>
+                  )}
                   {uploadingId === driver.id && (
                       <div className="absolute inset-0 bg-white/60 backdrop-blur-sm rounded-full flex items-center justify-center">
                           <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -235,7 +225,7 @@ export default function DriversPage() {
                     {driver.role === 'OWNER' ? 'Proprietar' : 'Șofer'}
                   </span>
                   
-                  {currentUser?.email === 'alex@flotera.ro' && (
+                  {currentUser?.email === 'alex@flotera.ro' && driver.id !== currentUser.id && (
                     <button
                       onClick={() => updateDriverRoleMutation.mutate({ 
                         userId: driver.id, 
@@ -249,8 +239,8 @@ export default function DriversPage() {
                   )}
                 </div>
 
-                {/* Assignment & Role */}
-                <div className="w-full pt-6 border-t border-slate-50 flex flex-col gap-4">
+                {/* Assignment */}
+                <div className="w-full pt-6 border-t border-slate-50 mt-auto">
                   {assignedVehicles.length > 0 ? (
                     <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -262,21 +252,25 @@ export default function DriversPage() {
                           <p className="text-xs font-bold text-slate-900">{assignedVehicles[0].licensePlate}</p>
                         </div>
                       </div>
-                      <button 
-                        onClick={() => setAssigningDriverId(driver.id)}
-                        className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors bg-blue-50 px-3 py-1.5 rounded-full"
-                      >
-                        Schimbă
-                      </button>
+                      {currentUser?.role === 'OWNER' && (
+                        <button 
+                          onClick={() => setAssigningDriverId(driver.id)}
+                          className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors bg-blue-50 px-3 py-1.5 rounded-full"
+                        >
+                          Schimbă
+                        </button>
+                      )}
                     </div>
                   ) : (
-                    <button 
-                      onClick={() => setAssigningDriverId(driver.id)}
-                      className="w-full py-3 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center gap-2 text-slate-400 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all text-sm font-bold group/btn"
-                    >
-                      <Car size={16} className="group-hover/btn:scale-110 transition-transform" />
-                      Asignează un vehicul
-                    </button>
+                    currentUser?.role === 'OWNER' && (
+                      <button 
+                        onClick={() => setAssigningDriverId(driver.id)}
+                        className="w-full py-3 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center gap-2 text-slate-400 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all text-sm font-bold group/btn"
+                      >
+                        <Car size={16} className="group-hover/btn:scale-110 transition-transform" />
+                        Asignează un vehicul
+                      </button>
+                    )
                   )}
                 </div>
               </div>
@@ -285,10 +279,10 @@ export default function DriversPage() {
         })}
       </div>
 
-      {drivers.length === 0 && (
+      {users.length === 0 && (
         <div className="bg-white rounded-[40px] p-16 text-center border border-slate-100 shadow-sm">
           <UserIcon size={48} className="mx-auto text-slate-200 mb-4" />
-          <h3 className="text-xl font-black text-slate-900">Niciun șofer înregistrat</h3>
+          <h3 className="text-xl font-black text-slate-900">Niciun utilizator înregistrat</h3>
           <p className="text-slate-500 max-w-xs mx-auto mt-2">Personalul tău trebuie să își creeze cont pentru a apărea în această listă.</p>
         </div>
       )}

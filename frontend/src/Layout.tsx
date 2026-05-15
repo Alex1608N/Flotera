@@ -14,6 +14,8 @@ import {
   Users
 } from 'lucide-react';
 
+import NotificationDrawer from './components/NotificationDrawer';
+
 interface LayoutProps {
   children: React.ReactNode;
   currentPage: string;
@@ -23,6 +25,7 @@ interface LayoutProps {
 export default function Layout({ children, currentPage, onNavigate }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = React.useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -46,8 +49,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
   const navigation: NavigationItem[] = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'fleet', name: 'Flota Mea', icon: Car },
-    { id: 'drivers', name: 'Management Șoferi', icon: Users, role: 'OWNER' },
-    { id: 'notifications', name: 'Notificări', icon: Bell, badge: unreadCount },
+    { id: 'drivers', name: 'Management Echipă', icon: Users, role: 'OWNER' },
     { id: 'profile', name: 'Profilul Meu', icon: UserIcon },
   ];
 
@@ -58,6 +60,11 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      <NotificationDrawer 
+        isOpen={isNotificationDrawerOpen} 
+        onClose={() => setIsNotificationDrawerOpen(false)} 
+      />
+      
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
         <div 
@@ -67,13 +74,13 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 bg-slate-900 text-white transition-all duration-300 flex flex-col ${isSidebarOpen ? 'w-64' : 'w-20'} ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="h-16 md:h-20 px-4 flex items-center justify-between shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-50 bg-slate-900 text-white transition-all duration-300 flex flex-col shadow-2xl ${isSidebarOpen ? 'w-64' : 'w-20'} ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="h-16 md:h-20 px-4 flex items-center justify-between shrink-0 border-b border-slate-800/50">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/20">
               <span className="font-black text-white text-xs">FL</span>
             </div>
-            <span className={`font-bold text-lg tracking-wider text-blue-400 whitespace-nowrap transition-opacity duration-200 ${!isSidebarOpen ? 'md:opacity-0 md:w-0' : 'opacity-100'}`}>
+            <span className={`font-black text-lg tracking-wider text-blue-400 whitespace-nowrap transition-all duration-300 ${!isSidebarOpen ? 'opacity-0 -translate-x-10 w-0' : 'opacity-100 translate-x-0'}`}>
               FLOTERA
             </span>
           </div>
@@ -85,7 +92,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
           </button>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1.5 overflow-y-auto custom-scrollbar py-4">
+        <nav className="flex-1 px-3 space-y-1.5 overflow-y-auto py-4 scrollbar-none hover:scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
           {navigation.map((item) => {
             // Ascunde pagini bazat pe rol
             if (item.id === 'fleet' && user?.role === 'DRIVER') return null;
@@ -102,22 +109,23 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
                     : 'hover:bg-slate-800 text-slate-400 hover:text-slate-100'
                 }`}
-                title={!isSidebarOpen ? item.name : ''}
               >
-                <div className="relative shrink-0">
+                <div className="relative shrink-0 flex items-center justify-center w-6 h-6">
                   <item.icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
                   {item.badge !== undefined && item.badge > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-slate-900">
+                    <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white border-2 border-slate-900">
                       {item.badge}
                     </span>
                   )}
                 </div>
-                <span className={`ml-3 font-medium whitespace-nowrap transition-all duration-300 ${!isSidebarOpen ? 'md:opacity-0 md:translate-x-4 md:w-0' : 'opacity-100 translate-x-0'}`}>
+                <span className={`ml-3 font-bold whitespace-nowrap transition-all duration-300 ${!isSidebarOpen ? 'opacity-0 -translate-x-10 w-0' : 'opacity-100 translate-x-0'}`}>
                   {item.name}
                 </span>
                 
-                {isActive && !isSidebarOpen && (
-                  <div className="absolute left-0 w-1 h-6 bg-white rounded-r-full hidden md:block" />
+                {!isSidebarOpen && (
+                  <div className={`absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 border border-slate-700 shadow-xl`}>
+                    {item.name}
+                  </div>
                 )}
               </button>
             )
@@ -133,19 +141,18 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
                 <UserIcon size={20} className="text-white" />
               )}
             </div>
-            <div className={`ml-3 text-left transition-all duration-300 ${!isSidebarOpen ? 'md:opacity-0 md:w-0' : 'opacity-100'}`}>
-              <p className="text-sm font-bold text-white truncate">{user?.name || 'Utilizator'}</p>
-              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{user?.role === 'OWNER' ? 'Proprietar' : 'Șofer'}</p>
+            <div className={`ml-3 text-left transition-all duration-300 ${!isSidebarOpen ? 'opacity-0 -translate-x-10 w-0' : 'opacity-100 translate-x-0'}`}>
+              <p className="text-sm font-black text-white truncate">{user?.name || 'Utilizator'}</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{user?.role === 'OWNER' ? 'Proprietar' : 'Șofer'}</p>
             </div>
           </button>
           
           <button 
             onClick={() => supabase.auth.signOut()}
             className="w-full flex items-center p-3 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all group"
-            title={!isSidebarOpen ? 'Deconectare' : ''}
           >
             <LogOut size={20} className="shrink-0 transition-transform group-hover:translate-x-0.5" />
-            <span className={`ml-3 font-medium transition-all duration-300 ${!isSidebarOpen ? 'md:opacity-0 md:w-0' : 'opacity-100'}`}>Deconectare</span>
+            <span className={`ml-3 font-bold transition-all duration-300 ${!isSidebarOpen ? 'opacity-0 -translate-x-10 w-0' : 'opacity-100 translate-x-0'}`}>Deconectare</span>
           </button>
         </div>
       </aside>
@@ -157,30 +164,46 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
             <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">
               <Menu size={24} />
             </button>
-            <div>
-              <h2 className="text-lg md:text-xl font-bold text-slate-800 tracking-tight capitalize">
+            <div className="hidden sm:block">
+              <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tight capitalize">
                 {navigation.find(n => n.id === currentPage)?.name || 'Panou de Control'}
               </h2>
-              <p className="hidden md:block text-xs text-slate-500 font-medium">Gestionare flotă și monitorizare în timp real</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Sistem de monitorizare flotă</p>
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-bold text-slate-900">{user?.name}</span>
-              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{user?.role === 'OWNER' ? 'Admin' : 'Driver'}</span>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 overflow-hidden">
-               {user?.profilePictureUrl ? (
-                <img src={user.profilePictureUrl.startsWith('http') ? user.profilePictureUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}${user.profilePictureUrl}`} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <UserIcon size={20} />
+          <div className="flex items-center gap-2 md:gap-6">
+            <button 
+              className="relative p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all active:scale-90"
+              onClick={() => setIsNotificationDrawerOpen(true)}
+            >
+              <Bell size={22} />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white border-2 border-white">
+                  {unreadCount}
+                </span>
               )}
+            </button>
+
+            <div className="h-8 w-px bg-slate-200 hidden md:block" />
+
+            <div className="flex items-center gap-3">
+              <div className="hidden md:flex flex-col items-end">
+                <span className="text-sm font-black text-slate-900 leading-none mb-1">{user?.name}</span>
+                <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{user?.role === 'OWNER' ? 'Admin' : 'Driver'}</span>
+              </div>
+              <button onClick={() => handleNavigate('profile')} className="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-slate-100 border-2 border-white shadow-md flex items-center justify-center text-slate-400 overflow-hidden hover:ring-2 hover:ring-blue-500/20 transition-all active:scale-95">
+                 {user?.profilePictureUrl ? (
+                  <img src={user.profilePictureUrl.startsWith('http') ? user.profilePictureUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}${user.profilePictureUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <UserIcon size={22} />
+                )}
+              </button>
             </div>
           </div>
         </header>
 
-        <div className="flex-1 p-4 md:p-8">
+        <div className="flex-1 overflow-x-hidden p-4 md:p-8">
           {children}
         </div>
       </main>

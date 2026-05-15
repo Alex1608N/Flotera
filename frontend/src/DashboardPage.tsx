@@ -4,6 +4,7 @@ import { userApi } from './api/userApi';
 import type { Vehicle } from './api/vehicleApi';
 import VehicleCard from './components/VehicleCard';
 import { AlertTriangle, CheckCircle2, Car, User } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface DashboardPageProps {
   onEdit: (vehicle: Vehicle) => void;
@@ -127,71 +128,94 @@ export default function DashboardPage({ onEdit, onShowIncidents, onReportInciden
   }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto space-y-10 pb-10">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
-            <Car size={24} />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-all group"
+        >
+          <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+            <Car size={28} />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Flotă</p>
-            <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Total Flotă</p>
+            <p className="text-3xl font-black text-slate-900">{stats.total}</p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stats.critical > 0 ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-400'}`}>
-            <AlertTriangle size={24} />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-all group"
+        >
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform ${stats.critical > 0 ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-400'}`}>
+            <AlertTriangle size={28} />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Alerte Critice</p>
-            <p className={`text-2xl font-bold ${stats.critical > 0 ? 'text-red-600' : 'text-slate-900'}`}>{stats.critical}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Alerte Critice</p>
+            <p className={`text-3xl font-black ${stats.critical > 0 ? 'text-red-600' : 'text-slate-900'}`}>{stats.critical}</p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
-            <CheckCircle2 size={24} />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-all group"
+        >
+          <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+            <CheckCircle2 size={28} />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">Vehicule OK</p>
-            <p className="text-2xl font-bold text-emerald-600">{stats.ok}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Vehicule OK</p>
+            <p className="text-3xl font-black text-emerald-600">{stats.ok}</p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Sorted Fleet List */}
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            Stare Flotă
-          </h2>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-2">
+          <div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">STARE FLOTĂ</h2>
+            <p className="text-slate-500 text-sm font-medium mt-0.5">Monitorizare în timp real a întregii flote</p>
+          </div>
           {stats.warning > 0 && (
-            <div className="text-sm font-medium text-yellow-700 bg-yellow-50 px-3 py-1 rounded-full border border-yellow-100">
+            <div className="text-xs font-black text-amber-600 bg-amber-50 px-4 py-2 rounded-xl border border-amber-100 uppercase tracking-wider animate-pulse">
               {stats.warning} vehicule necesită atenție
             </div>
           )}
         </div>
 
         {vehicles.length === 0 ? (
-          <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center">
-            <Car size={48} className="mx-auto text-slate-300 mb-4" />
-            <h3 className="text-lg font-bold text-slate-900">Niciun vehicul în flotă</h3>
-            <p className="text-slate-500 mt-1">Începe prin a adăuga prima mașină din secțiunea "Flota Mea".</p>
+          <div className="bg-white border-2 border-dashed border-slate-200 rounded-[40px] p-20 text-center shadow-sm">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+               <Car size={40} />
+            </div>
+            <h3 className="text-xl font-black text-slate-900">Niciun vehicul în flotă</h3>
+            <p className="text-slate-500 mt-2 max-w-sm mx-auto">Începe prin a adăuga prima mașină din secțiunea "Flota Mea" pentru a vedea statisticile aici.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedVehicles.map(vehicle => (
-              <VehicleCard 
-                key={vehicle.id} 
-                vehicle={vehicle} 
-                onEdit={onEdit}
-                onDelete={() => {}} 
-                onShowIncidents={onShowIncidents}
-                onReportIncident={onReportIncident}
-                onShowHistory={onShowHistory}
-              />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {sortedVehicles.map((vehicle, idx) => (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.05 }}
+                key={vehicle.id}
+              >
+                <VehicleCard 
+                  vehicle={vehicle} 
+                  onEdit={onEdit}
+                  onDelete={() => {}} 
+                  onShowIncidents={onShowIncidents}
+                  onReportIncident={onReportIncident}
+                  onShowHistory={onShowHistory}
+                />
+              </motion.div>
             ))}
           </div>
         )}
