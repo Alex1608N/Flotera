@@ -26,6 +26,17 @@ public class VehicleService {
         return vehicleRepository.findByOwnerId(ownerId);
     }
 
+    public List<Vehicle> getVehiclesForUser(User user) {
+        if (user.getRole() == com.example.flotera.user.Role.OWNER) {
+            // Un proprietar vede toate mașinile (sau doar ale lui, dacă am avea organizații)
+            // Momentan, presupunem că un proprietar vede tot ce a creat el
+            return vehicleRepository.findByOwnerId(user.getId());
+        } else {
+            // Un șofer vede DOAR mașina la care este asignat
+            return vehicleRepository.findByAssignedDriverId(user.getId());
+        }
+    }
+
     @Transactional
     public Vehicle createVehicle(VehicleRequest request, String ownerId) {
         if (vehicleRepository.existsByLicensePlate(request.licensePlate())) {
@@ -146,11 +157,8 @@ public class VehicleService {
             throw new SecurityException("Nu aveți permisiunea de a modifica acest vehicul.");
         }
 
-        // Salvăm fișierul fizic
-        String path = storageService.store(file, "vehicles");
-        
-        // Generăm URL-ul accesibil public (bazat pe maparea din StorageConfig)
-        String imageUrl = "/api/uploads/" + path;
+        // Salvăm fișierul (serviciul returnează acum URL-ul complet)
+        String imageUrl = storageService.store(file, "vehicles");
         
         vehicle.setImageUrl(imageUrl);
         vehicleRepository.save(vehicle);

@@ -299,8 +299,18 @@ export default function ServiceHistory({ vehicleId, vehiclePlate, onClose }: Ser
                             contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
                             itemStyle={{ fontWeight: 800, color: '#2563eb' }}
                             labelStyle={{ fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}
+                            cursor={{ stroke: '#cbd5e1', strokeWidth: 2, strokeDasharray: '4 4' }}
                           />
-                          <Area type="monotone" dataKey="km" stroke="#2563eb" strokeWidth={4} fillOpacity={1} fill="url(#colorKm)" />
+                          <Area 
+                            type="monotone" 
+                            dataKey="km" 
+                            stroke="#2563eb" 
+                            strokeWidth={4} 
+                            fillOpacity={1} 
+                            fill="url(#colorKm)"
+                            dot={{ fill: '#2563eb', r: 4, strokeWidth: 2, stroke: '#fff' }}
+                            activeDot={{ r: 8, strokeWidth: 0 }}
+                          />
                         </AreaChart>
                       </ResponsiveContainer>
                     ) : (

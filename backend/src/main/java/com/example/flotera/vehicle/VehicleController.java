@@ -23,19 +23,25 @@ public class VehicleController {
     private final VehicleService vehicleService;
     private final ExpirationEngineService expirationEngineService;
     private final IncidentRepository incidentRepository;
+    private final com.example.flotera.user.UserRepository userRepository;
 
     public VehicleController(VehicleService vehicleService, 
                              ExpirationEngineService expirationEngineService,
-                             IncidentRepository incidentRepository) {
+                             IncidentRepository incidentRepository,
+                             com.example.flotera.user.UserRepository userRepository) {
         this.vehicleService = vehicleService;
         this.expirationEngineService = expirationEngineService;
         this.incidentRepository = incidentRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
     public ResponseEntity<List<VehicleResponse>> getAllVehicles(@AuthenticationPrincipal Jwt jwt) {
-        String ownerId = jwt.getSubject();
-        List<Vehicle> vehicles = vehicleService.getVehiclesByOwner(ownerId);
+        String userId = jwt.getSubject();
+        com.example.flotera.user.User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+        
+        List<Vehicle> vehicles = vehicleService.getVehiclesForUser(user);
 
         List<VehicleResponse> response = vehicles.stream()
                 .map(this::toResponse)

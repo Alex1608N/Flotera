@@ -42,8 +42,8 @@ public class UserController {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
 
-        String path = storageService.store(file, "avatars");
-        user.setProfilePictureUrl("/api/uploads/" + path);
+        String imageUrl = storageService.store(file, "avatars");
+        user.setProfilePictureUrl(imageUrl);
         userRepository.save(user);
 
         return ResponseEntity.ok(toDto(user));
@@ -114,8 +114,8 @@ public class UserController {
         User targetUser = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new IllegalArgumentException("Utilizatorul țintă nu a fost găsit."));
 
-        String path = storageService.store(file, "avatars");
-        targetUser.setProfilePictureUrl("/api/uploads/" + path);
+        String imageUrl = storageService.store(file, "avatars");
+        targetUser.setProfilePictureUrl(imageUrl);
         userRepository.save(targetUser);
 
         return ResponseEntity.ok(toDto(targetUser));

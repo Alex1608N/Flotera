@@ -11,9 +11,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import java.util.UUID;
 
 @Service
+@ConditionalOnProperty(name = "storage.type", havingValue = "local", matchIfMissing = true)
 public class FileSystemStorageService implements StorageService {
 
     private final Path rootLocation;
@@ -59,7 +61,8 @@ public class FileSystemStorageService implements StorageService {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            return folder + "/" + storedFilename;
+            // Returnăm URL-ul pe care îl va folosi frontend-ul
+            return "/api/uploads/" + folder + "/" + storedFilename;
         } catch (IOException e) {
             throw new RuntimeException("Eroare la salvarea fișierului.", e);
         }

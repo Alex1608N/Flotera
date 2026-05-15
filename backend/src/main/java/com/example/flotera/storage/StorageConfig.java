@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import org.springframework.context.annotation.Primary;
+import org.springframework.web.client.RestTemplate;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -15,6 +17,11 @@ public class StorageConfig implements WebMvcConfigurer {
 
     @Value("${storage.location:uploads}")
     private String storageLocation;
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
     @Bean
     CommandLineRunner init(StorageService storageService) {
