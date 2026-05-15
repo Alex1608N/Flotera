@@ -1,6 +1,7 @@
 package com.example.flotera.notification;
 
 import com.example.flotera.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -54,7 +55,9 @@ public class Notification {
     public NotificationType getType() { return type; }
     public void setType(NotificationType type) { this.type = type; }
 
+    @JsonProperty("isRead")
     public boolean isRead() { return isRead; }
+    @JsonProperty("isRead")
     public void setRead(boolean read) { isRead = read; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
