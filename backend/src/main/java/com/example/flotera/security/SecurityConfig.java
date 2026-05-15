@@ -125,9 +125,11 @@ public class SecurityConfig {
             // Auto-creăm utilizatorul în H2 dacă nu există (pentru sincronizarea cu Supabase)
             User user = userRepository.findById(userId).orElseGet(() -> {
                 String actualEmail = jwt.getClaimAsString("email");
-                Role defaultRole = (actualEmail != null && actualEmail.contains("driver")) ? Role.DRIVER : Role.OWNER;
                 
-                // Forțăm gradul de OWNER pentru alex@flotera.ro conform cerinței
+                // Toți utilizatorii noi sunt ȘOFERI implicit
+                Role defaultRole = Role.DRIVER;
+                
+                // DOAR alex@flotera.ro este OWNER implicit
                 if ("alex@flotera.ro".equalsIgnoreCase(actualEmail)) {
                     defaultRole = Role.OWNER;
                 }

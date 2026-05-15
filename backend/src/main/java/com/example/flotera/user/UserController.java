@@ -88,6 +88,11 @@ public class UserController {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
         
+        // DOAR Alex poate folosi această simulare
+        if (!"alex@flotera.ro".equalsIgnoreCase(user.getEmail())) {
+            throw new SecurityException("Nu aveți permisiunea de a folosi funcția de simulare rol.");
+        }
+        
         if (user.getRole() == Role.OWNER) {
             user.setRole(Role.DRIVER);
         } else {
@@ -140,6 +145,33 @@ public class UserController {
 
         targetUser.setProfilePictureUrl(request.get("profilePictureUrl"));
         userRepository.save(targetUser);
+
+        return ResponseEntity.ok(toDto(targetUser));
+    }
+
+    @PutMapping("/{targetUserId}/role")
+    public ResponseEntity<UserDto> updateUserRole(
+            @PathVariable String targetUserId,
+            @RequestBody Map<String, String> request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String requesterId = jwt.getSubject();
+        User requester = userRepository.findById(requesterId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+
+        // DOAR Alex are voie să schimbe gradele altora
+        if (!"alex@flotera.ro".equalsIgnoreCase(requester.getEmail())) {
+            throw new SecurityException("Nu aveți permisiunea de a schimba rolurile altor utilizatori.");
+        }
+
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul țintă nu a fost găsit."));
+
+        String newRoleStr = request.get("role");
+        if (newRoleStr != null) {
+            targetUser.setRole(Role.valueOf(newRoleStr.toUpperCase()));
+            userRepository.save(targetUser);
+        }
 
         return ResponseEntity.ok(toDto(targetUser));
     }

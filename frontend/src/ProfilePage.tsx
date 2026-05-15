@@ -139,16 +139,18 @@ export default function ProfilePage() {
                   {user.role === 'OWNER' ? 'Proprietar' : 'Șofer'}
                 </span>
                 
-                {/* Buton simulare schimbare rol */}
-                <button 
-                  onClick={() => toggleRoleMutation.mutate()}
-                  disabled={toggleRoleMutation.isPending}
-                  className="flex items-center gap-2 px-4 py-2 mt-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
-                  title="Acest buton este pentru testare. Schimbă rolul tău curent."
-                >
-                  <RefreshCw size={14} className={toggleRoleMutation.isPending ? 'animate-spin' : ''} />
-                  Simulare Rol: {user.role === 'OWNER' ? 'Devino Șofer' : 'Devino Proprietar'}
-                </button>
+                {/* Buton simulare schimbare rol - DOAR PENTRU ALEX */}
+                {user.email === 'alex@flotera.ro' && (
+                  <button 
+                    onClick={() => toggleRoleMutation.mutate()}
+                    disabled={toggleRoleMutation.isPending}
+                    className="flex items-center gap-2 px-4 py-2 mt-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
+                    title="Acest buton este pentru testare. Schimbă rolul tău curent."
+                  >
+                    <RefreshCw size={14} className={toggleRoleMutation.isPending ? 'animate-spin' : ''} />
+                    Simulare Rol: {user.role === 'OWNER' ? 'Devino Șofer' : 'Devino Proprietar'}
+                  </button>
+                )}
               </div>
             </div>
           </div>

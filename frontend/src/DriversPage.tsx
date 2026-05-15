@@ -44,6 +44,14 @@ export default function DriversPage() {
     }
   });
 
+  const updateDriverRoleMutation = useMutation({
+    mutationFn: ({ userId, role }: { userId: string, role: 'OWNER' | 'DRIVER' }) => userApi.updateUserRole(userId, role),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['drivers'] });
+      showFeedback('Gradul utilizatorului a fost actualizat!', 'success');
+    }
+  });
+
   const showFeedback = (text: string, type: 'success' | 'error') => {
     setMessage({ text, type });
     setTimeout(() => setMessage(null), 3000);
@@ -214,9 +222,31 @@ export default function DriversPage() {
                 </div>
 
                 <h3 className="text-xl font-black text-slate-900 mb-1">{driver.name}</h3>
-                <div className="flex items-center gap-1 text-slate-400 text-sm font-medium mb-6">
+                <div className="flex items-center gap-1 text-slate-400 text-sm font-medium mb-4">
                   <Mail size={14} />
                   {driver.email}
+                </div>
+
+                {/* Role Badge & Promote Button */}
+                <div className="mb-6 flex flex-col items-center gap-3">
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                    driver.role === 'OWNER' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    {driver.role === 'OWNER' ? 'Proprietar' : 'Șofer'}
+                  </span>
+                  
+                  {currentUser?.email === 'alex@flotera.ro' && (
+                    <button
+                      onClick={() => updateDriverRoleMutation.mutate({ 
+                        userId: driver.id, 
+                        role: driver.role === 'OWNER' ? 'DRIVER' : 'OWNER' 
+                      })}
+                      disabled={updateDriverRoleMutation.isPending}
+                      className="text-xs font-bold text-blue-600 hover:text-blue-800 underline underline-offset-4 decoration-blue-200 hover:decoration-blue-600 transition-all"
+                    >
+                      {driver.role === 'OWNER' ? 'Retrogradează la Șofer' : 'Promovează la Proprietar'}
+                    </button>
+                  )}
                 </div>
 
                 {/* Assignment & Role */}

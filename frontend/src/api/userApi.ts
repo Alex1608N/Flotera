@@ -26,5 +26,8 @@ export const userApi = {
     const formData = new FormData();
     formData.append('file', file);
     return api.post<User>(`/users/${userId}/profile-picture/upload`, formData).then(res => res.data);
-  }
+  },
+  
+  updateUserRole: (userId: string, role: 'OWNER' | 'DRIVER') => 
+    api.put<User>(`/users/${userId}/role`, { role }).then(res => res.data)
 };
