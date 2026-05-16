@@ -14,6 +14,8 @@ import {
   Users
 } from 'lucide-react';
 
+import { getImageUrl } from './api/imageUtils';
+
 import NotificationDrawer from './components/NotificationDrawer';
 
 interface LayoutProps {
@@ -145,7 +147,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
           <button onClick={() => handleNavigate('profile')} className="w-full flex items-center p-2 hover:bg-slate-800 rounded-xl transition-all group overflow-hidden">
             <div className="w-10 h-10 md:w-9 md:h-9 rounded-xl bg-blue-500 flex items-center justify-center overflow-hidden shrink-0 shadow-lg shadow-blue-500/20">
               {user?.profilePictureUrl ? (
-                <img src={user.profilePictureUrl.startsWith('http') ? user.profilePictureUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}${user.profilePictureUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+                <img src={getImageUrl(user.profilePictureUrl)} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
                 <UserIcon size={20} className="text-white" />
               )}
@@ -203,7 +205,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
               </div>
               <button onClick={() => handleNavigate('profile')} className="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-slate-100 border-2 border-white shadow-md flex items-center justify-center text-slate-400 overflow-hidden hover:ring-2 hover:ring-blue-500/20 transition-all active:scale-95">
                  {user?.profilePictureUrl ? (
-                  <img src={user.profilePictureUrl.startsWith('http') ? user.profilePictureUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}${user.profilePictureUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={getImageUrl(user.profilePictureUrl)} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <UserIcon size={22} />
                 )}

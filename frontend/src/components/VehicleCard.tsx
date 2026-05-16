@@ -2,6 +2,7 @@ import { Car, Edit2, Trash2, Calendar, ShieldCheck, Map, Gauge, Wrench, AlertCir
 import type { Vehicle } from '../api/vehicleApi';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { vehicleApi } from '../api/vehicleApi';
+import { getImageUrl } from '../api/imageUtils';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -62,12 +63,6 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
   const maintenanceProgress = Math.min(Math.max((kmSinceLast / vehicle.maintenanceThresholdKm) * 100, 0), 100);
   const isMaintenanceClose = kmSinceLast >= vehicle.maintenanceThresholdKm - 500;
   const isMaintenanceOver = kmSinceLast >= vehicle.maintenanceThresholdKm;
-
-  const getImageUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return `${import.meta.env.VITE_API_URL.replace('/api', '')}${url}`;
-  };
 
   return (
     <div 
@@ -226,7 +221,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
               <div className="w-12 h-12 rounded-full bg-slate-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center shrink-0">
                 {vehicle.assignedDriverProfilePictureUrl ? (
                   <img 
-                    src={vehicle.assignedDriverProfilePictureUrl.startsWith('http') ? vehicle.assignedDriverProfilePictureUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}${vehicle.assignedDriverProfilePictureUrl}`} 
+                    src={getImageUrl(vehicle.assignedDriverProfilePictureUrl)} 
                     alt={vehicle.assignedDriverName} 
                     className="w-full h-full object-cover" 
                   />

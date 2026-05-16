@@ -241,131 +241,64 @@ export default function DashboardPage({
             </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden"
-            >
-               <div className="flex items-center justify-between mb-8">
-                  <div>
-                     <h3 className="text-lg font-black text-slate-900">Distribuție Stare Flotă</h3>
-                     <p className="text-xs text-slate-500 font-medium">Analiza sănătății vehiculelor</p>
-                  </div>
-                  <TrendingUp className="text-blue-500" />
-               </div>
-               
-               <div className="h-[240px] w-full flex items-center justify-center">
-                  {vehicles.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={chartData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={80}
-                          paddingAngle={8}
-                          dataKey="value"
-                        >
-                          {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="text-slate-300 font-bold">Fără date disponibile</div>
-                  )}
-                  
-                  <div className="absolute flex flex-col items-center">
-                      <span className="text-2xl font-black text-slate-900">{vehicles.length}</span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">Mașini</span>
-                  </div>
-               </div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden h-full"
+          >
+             <div className="flex items-center justify-between mb-8">
+                <div>
+                   <h3 className="text-lg font-black text-slate-900">Distribuție Stare Flotă</h3>
+                   <p className="text-xs text-slate-500 font-medium">Analiza sănătății vehiculelor</p>
+                </div>
+                <TrendingUp className="text-blue-500" />
+             </div>
+             
+             <div className="h-[280px] w-full flex items-center justify-center">
+                {vehicles.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={70}
+                        outerRadius={100}
+                        paddingAngle={8}
+                        dataKey="value"
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-slate-300 font-bold">Fără date disponibile</div>
+                )}
+                
+                <div className="absolute flex flex-col items-center">
+                    <span className="text-3xl font-black text-slate-900">{vehicles.length}</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Mașini</span>
+                </div>
+             </div>
 
-               <div className="grid grid-cols-3 gap-4 mt-4">
-                  {chartData.map((d) => (
-                    <div key={d.name} className="flex flex-col items-center p-3 rounded-2xl bg-slate-50 border border-slate-100/50">
-                       <div className="w-2 h-2 rounded-full mb-2" style={{ backgroundColor: d.color }} />
-                       <span className="text-[10px] font-black text-slate-400 uppercase">{d.name}</span>
-                       <span className="text-sm font-black text-slate-900">{Math.round((d.value / vehicles.length) * 100)}%</span>
-                    </div>
-                  ))}
-               </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
-            >
-               <div className="flex items-center justify-between mb-8">
-                  <div>
-                     <h3 className="text-lg font-black text-slate-900">Analiză Kilometraj</h3>
-                     <p className="text-xs text-slate-500 font-medium">Evoluție {vehicles[0]?.licensePlate || 'Flotă'}</p>
+             <div className="grid grid-cols-3 gap-4 mt-8">
+                {chartData.map((d) => (
+                  <div key={d.name} className="flex flex-col items-center p-3 rounded-2xl bg-slate-50 border border-slate-100/50">
+                     <div className="w-2 h-2 rounded-full mb-2" style={{ backgroundColor: d.color }} />
+                     <span className="text-[10px] font-black text-slate-400 uppercase">{d.name}</span>
+                     <span className="text-sm font-black text-slate-900">{Math.round((d.value / vehicles.length) * 100)}%</span>
                   </div>
-                  <BarChart3 className="text-blue-500" />
-               </div>
-
-               <div className="h-[240px] w-full">
-                  {history.length > 1 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                       <AreaChart data={history}>
-                          <defs>
-                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                          <XAxis 
-                            dataKey="date" 
-                            axisLine={false} 
-                            tickLine={false} 
-                            tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }}
-                            tickFormatter={(str) => {
-                               const d = new Date(str);
-                               return d.toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' });
-                            }}
-                          />
-                          <YAxis 
-                            axisLine={false} 
-                            tickLine={false} 
-                            tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }}
-                          />
-                          <RechartsTooltip 
-                            contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 800 }}
-                          />
-                          <Area 
-                            type="monotone" 
-                            dataKey="value" 
-                            name="KM"
-                            stroke="#3b82f6" 
-                            strokeWidth={4}
-                            fillOpacity={1} 
-                            fill="url(#colorValue)" 
-                          />
-                       </AreaChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-slate-300 text-center space-y-3">
-                       <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
-                          <BarChart3 size={24} />
-                       </div>
-                       <p className="text-xs font-bold uppercase tracking-widest max-w-[150px]">Introdu mai multe citiri pentru grafic</p>
-                    </div>
-                  )}
-               </div>
-            </motion.div>
-          </div>
+                ))}
+             </div>
+          </motion.div>
         </div>
 
         {/* Right Column: Expirations & Issues */}
-        <div className="w-full md:w-[400px] space-y-8">
+        <div className="w-full md:w-[450px] space-y-8">
            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-full min-h-[400px]">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
@@ -443,30 +376,6 @@ export default function DashboardPage({
                  </div>
               </div>
            )}
-        </div>
-      </div>
-      
-      {/* Quick Access Grid */}
-      <div className="space-y-6">
-        <h3 className="text-xl font-black text-slate-900 tracking-tight ml-2">Acces Rapid</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-           {[
-             { label: 'Adaugă Vehicul', icon: Car, action: () => onNavigate?.('fleet'), color: 'bg-blue-600' },
-             { label: 'Echipa Mea', icon: User, action: () => onNavigate?.('drivers'), color: 'bg-slate-900' },
-             { label: 'Notificări', icon: Clock, action: () => onNavigate?.('notifications'), color: 'bg-indigo-600' },
-             { label: 'Profil Admin', icon: ShieldCheck, action: () => onNavigate?.('profile'), color: 'bg-emerald-600' },
-           ].map((item, idx) => (
-              <button
-                key={idx}
-                onClick={item.action}
-                className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center gap-3 active:scale-95"
-              >
-                 <div className={`w-12 h-12 ${item.color} text-white rounded-2xl flex items-center justify-center shadow-lg shadow-${item.color.split('-')[1]}-200`}>
-                    <item.icon size={22} />
-                 </div>
-                 <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{item.label}</span>
-              </button>
-           ))}
         </div>
       </div>
     </div>
