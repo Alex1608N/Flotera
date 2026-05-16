@@ -22,19 +22,19 @@ export interface Vehicle {
   model: string;
   year: number;
   vin: string;
-  assignedDriverId?: string;
-  assignedDriverName?: string;
-  assignedDriverProfilePictureUrl?: string;
-  imageUrl?: string;
+  assignedDriverId?: string | null;
+  assignedDriverName?: string | null;
+  assignedDriverProfilePictureUrl?: string | null;
+  imageUrl?: string | null;
   ownerId: string;
-  itpExpiration?: string;
-  rcaExpiration?: string;
-  rovinietaExpiration?: string;
+  itpExpiration?: string | null;
+  rcaExpiration?: string | null;
+  rovinietaExpiration?: string | null;
   status: 'OK' | 'WARNING' | 'CRITICAL';
   odometer: number;
-  lastOdometerUpdate?: string;
+  lastOdometerUpdate?: string | null;
   lastMaintenanceKm: number;
-  lastMaintenanceDate?: string;
+  lastMaintenanceDate?: string | null;
   maintenanceThresholdKm: number;
   maintenanceThresholdMonths: number;
   hasActiveIncidents: boolean;
@@ -44,10 +44,10 @@ export interface Incident {
   id: number;
   vehicleId: number;
   description: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   status: 'OPEN' | 'RESOLVED';
   createdAt: string;
-  resolvedAt?: string;
+  resolvedAt?: string | null;
 }
 
 export interface ServiceRecord {
@@ -56,14 +56,14 @@ export interface ServiceRecord {
   date: string;
   odometer: number;
   description: string;
-  cost?: number;
+  cost?: number | null;
   type: 'ROUTINE_MAINTENANCE' | 'REPAIR' | 'TYRE_CHANGE' | 'INSPECTION';
 }
 
 export const vehicleApi = {
   getAll: () => api.get<Vehicle[]>('/vehicles').then(res => res.data),
-  create: (data: Omit<Vehicle, 'id' | 'imageUrl' | 'ownerId' | 'status' | 'odometer' | 'lastOdometerUpdate' | 'hasActiveIncidents'>) => api.post<Vehicle>('/vehicles', data).then(res => res.data),
-  update: (id: number, data: Omit<Vehicle, 'id' | 'imageUrl' | 'ownerId' | 'status' | 'odometer' | 'lastOdometerUpdate' | 'hasActiveIncidents'>) => api.put<Vehicle>(`/vehicles/${id}`, data).then(res => res.data),
+  create: (data: Partial<Vehicle>) => api.post<Vehicle>('/vehicles', data).then(res => res.data),
+  update: (id: number, data: Partial<Vehicle>) => api.put<Vehicle>(`/vehicles/${id}`, data).then(res => res.data),
   delete: (id: number) => api.delete(`/vehicles/${id}`),
   uploadImage: (id: number, file: File) => {
     const formData = new FormData();
@@ -71,6 +71,7 @@ export const vehicleApi = {
     return api.post<{ imageUrl: string }>(`/vehicles/${id}/image`, formData).then(res => res.data);
   },
   updateOdometer: (id: number, odometer: number) => api.post<Vehicle>(`/vehicles/${id}/odometer`, { odometer }).then(res => res.data),
+  getOdometerHistory: (id: number) => api.get<{ date: string, value: number }[]>(`/vehicles/${id}/odometer-history`).then(res => res.data),
   
   // Incidente
   getIncidents: (vehicleId: number) => api.get<Incident[]>(`/vehicles/${vehicleId}/incidents`).then(res => res.data),

@@ -14,12 +14,13 @@ public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
     private final UserRepository userRepository;
-    private final StorageService storageService;
+    private final OdometerReadingRepository odometerReadingRepository;
 
-    public VehicleService(VehicleRepository vehicleRepository, UserRepository userRepository, StorageService storageService) {
+    public VehicleService(VehicleRepository vehicleRepository, UserRepository userRepository, StorageService storageService, OdometerReadingRepository odometerReadingRepository) {
         this.vehicleRepository = vehicleRepository;
         this.userRepository = userRepository;
         this.storageService = storageService;
+        this.odometerReadingRepository = odometerReadingRepository;
     }
 
     public List<Vehicle> getVehiclesByOwner(String ownerId) {
@@ -60,6 +61,17 @@ public class VehicleService {
         vehicle.setItpExpiration(request.itpExpiration());
         vehicle.setRcaExpiration(request.rcaExpiration());
         vehicle.setRovinietaExpiration(request.rovinietaExpiration());
+        
+        vehicle.setLastMaintenanceKm(request.lastMaintenanceKm() != null ? request.lastMaintenanceKm() : 0L);
+        vehicle.setLastMaintenanceDate(request.lastMaintenanceDate());
+        vehicle.setMaintenanceThresholdKm(request.maintenanceThresholdKm() != null ? request.maintenanceThresholdKm() : 10000L);
+        vehicle.setMaintenanceThresholdMonths(request.maintenanceThresholdMonths() != null ? request.maintenanceThresholdMonths() : 12);
+
+        if (request.assignedDriverId() != null && !request.assignedDriverId().isEmpty()) {
+            User driver = userRepository.findById(request.assignedDriverId())
+                    .orElseThrow(() -> new IllegalArgumentException("Șoferul nu a fost găsit."));
+            vehicle.setAssignedDriver(driver);
+        }
 
         return vehicleRepository.save(vehicle);
     }
@@ -92,6 +104,19 @@ public class VehicleService {
         vehicle.setItpExpiration(request.itpExpiration());
         vehicle.setRcaExpiration(request.rcaExpiration());
         vehicle.setRovinietaExpiration(request.rovinietaExpiration());
+        
+        vehicle.setLastMaintenanceKm(request.lastMaintenanceKm() != null ? request.lastMaintenanceKm() : vehicle.getLastMaintenanceKm());
+        vehicle.setLastMaintenanceDate(request.lastMaintenanceDate());
+        vehicle.setMaintenanceThresholdKm(request.maintenanceThresholdKm() != null ? request.maintenanceThresholdKm() : vehicle.getMaintenanceThresholdKm());
+        vehicle.setMaintenanceThresholdMonths(request.maintenanceThresholdMonths() != null ? request.maintenanceThresholdMonths() : vehicle.getMaintenanceThresholdMonths());
+
+        if (request.assignedDriverId() == null || request.assignedDriverId().isEmpty()) {
+            vehicle.setAssignedDriver(null);
+        } else {
+            User driver = userRepository.findById(request.assignedDriverId())
+                    .orElseThrow(() -> new IllegalArgumentException("Șoferul nu a fost găsit."));
+            vehicle.setAssignedDriver(driver);
+        }
 
         return vehicleRepository.save(vehicle);
     }
@@ -132,7 +157,25 @@ public class VehicleService {
         vehicle.setOdometer(newOdometer);
         vehicle.setLastOdometerUpdate(java.time.LocalDate.now());
 
+        // Înregistrăm citirea în istoric
+        odometerReadingRepository.save(new OdometerReading(vehicle, newOdometer, java.time.LocalDate.now()));
+
         return vehicleRepository.save(vehicle);
+    }
+
+    public List<OdometerReading> getOdometerHistory(Long vehicleId, String requesterId) {
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost găsit."));
+        
+        // Verificăm accesul
+        boolean isOwner = vehicle.getOwner().getId().equals(requesterId);
+        boolean isAssignedDriver = vehicle.getAssignedDriver() != null && vehicle.getAssignedDriver().getId().equals(requesterId);
+        
+        if (!isOwner && !isAssignedDriver) {
+            throw new SecurityException("Nu aveți permisiunea de a vedea istoricul acestui vehicul.");
+        }
+
+        return odometerReadingRepository.findByVehicleIdOrderByReadingDateAsc(vehicleId);
     }
 
     @Transactional

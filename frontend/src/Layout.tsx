@@ -75,18 +75,27 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
 
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 bg-slate-900 text-white transition-all duration-300 flex flex-col shadow-2xl ${isSidebarOpen ? 'w-64' : 'w-20'} ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="h-16 md:h-20 px-4 flex items-center justify-between shrink-0 border-b border-slate-800/50">
+        <div className={`h-16 md:h-20 px-4 flex items-center shrink-0 border-b border-slate-800/50 relative ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/20">
-              <span className="font-black text-white text-xs">FL</span>
+            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/20">
+              <span className="font-black text-white text-sm">FL</span>
             </div>
-            <span className={`font-black text-lg tracking-wider text-blue-400 whitespace-nowrap transition-all duration-300 ${!isSidebarOpen ? 'opacity-0 -translate-x-10 w-0' : 'opacity-100 translate-x-0'}`}>
+            <span className={`font-black text-lg tracking-wider text-blue-400 whitespace-nowrap transition-all duration-300 ${!isSidebarOpen ? 'opacity-0 w-0 -translate-x-10' : 'opacity-100 w-auto translate-x-0'}`}>
               FLOTERA
             </span>
           </div>
-          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="hidden md:flex p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors">
-            {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+          
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+            className={`hidden md:flex items-center justify-center rounded-lg transition-all ${
+              isSidebarOpen 
+                ? 'p-1.5 hover:bg-slate-800 text-slate-400 hover:text-white' 
+                : 'absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-blue-600 text-white shadow-xl border-2 border-slate-900 hover:bg-blue-500 z-50 active:scale-90'
+            }`}
+          >
+            {isSidebarOpen ? <X size={18} /> : <Menu size={12} />}
           </button>
+
           <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-1.5 hover:bg-slate-800 rounded-lg text-slate-400">
             <X size={20} />
           </button>

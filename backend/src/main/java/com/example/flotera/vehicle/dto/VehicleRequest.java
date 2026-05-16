@@ -21,6 +21,12 @@ public record VehicleRequest(
 
     java.time.LocalDate itpExpiration,
     java.time.LocalDate rcaExpiration,
-    java.time.LocalDate rovinietaExpiration
+    java.time.LocalDate rovinietaExpiration,
+    
+    Long lastMaintenanceKm,
+    java.time.LocalDate lastMaintenanceDate,
+    Long maintenanceThresholdKm,
+    Integer maintenanceThresholdMonths,
+    String assignedDriverId
 ) {
 }

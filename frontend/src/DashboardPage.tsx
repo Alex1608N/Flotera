@@ -13,10 +13,11 @@ import {
   ClipboardCheck,
   ChevronRight,
   TrendingUp,
-  Settings
+  Settings,
+  BarChart3
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 interface DashboardPageProps {
   onEdit: (vehicle: Vehicle) => void;
@@ -159,7 +160,7 @@ export default function DashboardPage({
     const thirtyDaysLater = new Date();
     thirtyDaysLater.setDate(today.getDate() + 30);
 
-    const checkExpiration = (dateStr: string | undefined, type: string) => {
+    const checkExpiration = (dateStr: string | null | undefined, type: string) => {
       if (!dateStr) return null;
       const date = new Date(dateStr);
       if (date <= thirtyDaysLater) {
@@ -189,6 +190,13 @@ export default function DashboardPage({
 
   // Vehicule cu incidente active
   const activeIncidentVehicles = vehicles.filter(v => v.hasActiveIncidents);
+
+  // Odometer Analytics Data
+  const { data: history = [] } = useQuery({
+    queryKey: ['odometer-history', vehicles[0]?.id],
+    queryFn: () => vehicles[0] ? vehicleApi.getOdometerHistory(vehicles[0].id) : Promise.resolve([]),
+    enabled: vehicles.length > 0
+  });
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-10">
@@ -233,60 +241,127 @@ export default function DashboardPage({
             </motion.div>
           </div>
 
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden"
-          >
-             <div className="flex items-center justify-between mb-8">
-                <div>
-                   <h3 className="text-lg font-black text-slate-900">Distribuție Stare Flotă</h3>
-                   <p className="text-xs text-slate-500 font-medium">Analiza sănătății vehiculelor</p>
-                </div>
-                <TrendingUp className="text-blue-500" />
-             </div>
-             
-             <div className="h-[240px] w-full flex items-center justify-center">
-                {vehicles.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={chartData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={8}
-                        dataKey="value"
-                      >
-                        {chartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <RechartsTooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="text-slate-300 font-bold">Fără date disponibile</div>
-                )}
-                
-                <div className="absolute flex flex-col items-center">
-                    <span className="text-2xl font-black text-slate-900">{vehicles.length}</span>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">Mașini</span>
-                </div>
-             </div>
-
-             <div className="grid grid-cols-3 gap-4 mt-4">
-                {chartData.map((d) => (
-                  <div key={d.name} className="flex flex-col items-center p-3 rounded-2xl bg-slate-50 border border-slate-100/50">
-                     <div className="w-2 h-2 rounded-full mb-2" style={{ backgroundColor: d.color }} />
-                     <span className="text-[10px] font-black text-slate-400 uppercase">{d.name}</span>
-                     <span className="text-sm font-black text-slate-900">{Math.round((d.value / vehicles.length) * 100)}%</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden"
+            >
+               <div className="flex items-center justify-between mb-8">
+                  <div>
+                     <h3 className="text-lg font-black text-slate-900">Distribuție Stare Flotă</h3>
+                     <p className="text-xs text-slate-500 font-medium">Analiza sănătății vehiculelor</p>
                   </div>
-                ))}
-             </div>
-          </motion.div>
+                  <TrendingUp className="text-blue-500" />
+               </div>
+               
+               <div className="h-[240px] w-full flex items-center justify-center">
+                  {vehicles.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={chartData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={8}
+                          dataKey="value"
+                        >
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="text-slate-300 font-bold">Fără date disponibile</div>
+                  )}
+                  
+                  <div className="absolute flex flex-col items-center">
+                      <span className="text-2xl font-black text-slate-900">{vehicles.length}</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">Mașini</span>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-3 gap-4 mt-4">
+                  {chartData.map((d) => (
+                    <div key={d.name} className="flex flex-col items-center p-3 rounded-2xl bg-slate-50 border border-slate-100/50">
+                       <div className="w-2 h-2 rounded-full mb-2" style={{ backgroundColor: d.color }} />
+                       <span className="text-[10px] font-black text-slate-400 uppercase">{d.name}</span>
+                       <span className="text-sm font-black text-slate-900">{Math.round((d.value / vehicles.length) * 100)}%</span>
+                    </div>
+                  ))}
+               </div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
+            >
+               <div className="flex items-center justify-between mb-8">
+                  <div>
+                     <h3 className="text-lg font-black text-slate-900">Analiză Kilometraj</h3>
+                     <p className="text-xs text-slate-500 font-medium">Evoluție {vehicles[0]?.licensePlate || 'Flotă'}</p>
+                  </div>
+                  <BarChart3 className="text-blue-500" />
+               </div>
+
+               <div className="h-[240px] w-full">
+                  {history.length > 1 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                       <AreaChart data={history}>
+                          <defs>
+                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                          <XAxis 
+                            dataKey="date" 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }}
+                            tickFormatter={(str) => {
+                               const d = new Date(str);
+                               return d.toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' });
+                            }}
+                          />
+                          <YAxis 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }}
+                          />
+                          <RechartsTooltip 
+                            contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 800 }}
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="value" 
+                            name="KM"
+                            stroke="#3b82f6" 
+                            strokeWidth={4}
+                            fillOpacity={1} 
+                            fill="url(#colorValue)" 
+                          />
+                       </AreaChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-slate-300 text-center space-y-3">
+                       <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
+                          <BarChart3 size={24} />
+                       </div>
+                       <p className="text-xs font-bold uppercase tracking-widest max-w-[150px]">Introdu mai multe citiri pentru grafic</p>
+                    </div>
+                  )}
+               </div>
+            </motion.div>
+          </div>
         </div>
 
         {/* Right Column: Expirations & Issues */}

@@ -108,6 +108,24 @@ public class VehicleController {
         return ResponseEntity.ok(toResponse(vehicle));
     }
 
+    @GetMapping("/{id}/odometer-history")
+    public ResponseEntity<List<Map<String, Object>>> getOdometerHistory(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String requesterId = jwt.getSubject();
+        List<OdometerReading> history = vehicleService.getOdometerHistory(id, requesterId);
+        
+        List<Map<String, Object>> response = history.stream()
+                .map(r -> Map.of(
+                        "date", r.getReadingDate().toString(),
+                        "value", (Object)r.getOdometerValue()
+                ))
+                .collect(Collectors.toList());
+                
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/{id}/driver")
     public ResponseEntity<VehicleResponse> assignDriver(
             @PathVariable Long id,

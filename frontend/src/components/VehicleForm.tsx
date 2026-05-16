@@ -38,13 +38,22 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      // Pregătim datele pentru trimitere (convertim "" în null pentru date)
+      const submitData = {
+        ...formData,
+        itpExpiration: formData.itpExpiration || null,
+        rcaExpiration: formData.rcaExpiration || null,
+        rovinietaExpiration: formData.rovinietaExpiration || null,
+        lastMaintenanceDate: formData.lastMaintenanceDate || null,
+      };
+
       let vehicle;
       if (isEditMode && vehicleToEdit) {
         // 1. Actualizăm mașina existentă
-        vehicle = await vehicleApi.update(vehicleToEdit.id, formData);
+        vehicle = await vehicleApi.update(vehicleToEdit.id, submitData);
       } else {
         // 1. Creăm mașina nouă
-        vehicle = await vehicleApi.create(formData);
+        vehicle = await vehicleApi.create(submitData);
       }
       
       // 2. Dacă avem o imagine nouă, o încărcăm
@@ -60,6 +69,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
     },
     onError: (error: Error | unknown) => {
       // Afișăm eroarea primită de la backend (dacă există)
+      console.error('Error saving vehicle:', error);
       const msg = (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Eroare la salvarea vehiculului. Verificați datele.';
       setErrorMsg(msg);
     }
@@ -75,6 +85,12 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
     }
+  };
+
+  const getImageUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${API_BASE_URL.replace('/api', '')}${url}`;
   };
 
   return (
@@ -104,7 +120,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                 {imageFile ? (
                   <img src={URL.createObjectURL(imageFile)} alt="Preview" className="w-full h-full object-cover" />
                 ) : vehicleToEdit?.imageUrl ? (
-                  <img src={`${API_BASE_URL.replace('/api', '')}${vehicleToEdit.imageUrl}`} alt="Current" className="w-full h-full object-cover" />
+                  <img src={getImageUrl(vehicleToEdit.imageUrl)} alt="Current" className="w-full h-full object-cover" />
                 ) : (
                   <>
                     <Upload className="text-blue-500 mb-2" size={24} />
@@ -233,9 +249,9 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
 
               {/* Sectiune Mentenanță */}
               <div className="md:col-span-2 mt-4">
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b pb-2">Mentenanță</h3>
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b pb-2">Mentenanță & Praguri</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
+                  <div>
                     <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Ultima Revizie (KM)</label>
                     <input 
                       type="number" 
@@ -245,13 +261,35 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                       onChange={e => setFormData({...formData, lastMaintenanceKm: parseInt(e.target.value) || 0})}
                     />
                   </div>
-                  <div className="md:col-span-2">
+                  <div>
                     <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Data Ultimei Revizii</label>
                     <input 
                       type="date" 
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                       value={formData.lastMaintenanceDate}
                       onChange={e => setFormData({...formData, lastMaintenanceDate: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Prag Revizie (KM)</label>
+                    <input 
+                      type="number" 
+                      min="1000"
+                      step="1000"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                      value={formData.maintenanceThresholdKm}
+                      onChange={e => setFormData({...formData, maintenanceThresholdKm: parseInt(e.target.value) || 10000})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Prag Revizie (Luni)</label>
+                    <input 
+                      type="number" 
+                      min="1"
+                      max="48"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                      value={formData.maintenanceThresholdMonths}
+                      onChange={e => setFormData({...formData, maintenanceThresholdMonths: parseInt(e.target.value) || 12})}
                     />
                   </div>
                 </div>

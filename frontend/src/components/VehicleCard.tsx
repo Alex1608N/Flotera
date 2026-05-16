@@ -15,7 +15,7 @@ interface VehicleCardProps {
 export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents, onReportIncident, onShowHistory }: VehicleCardProps) {
   const queryClient = useQueryClient();
 
-  const getDaysRemaining = (dateStr?: string) => {
+  const getDaysRemaining = (dateStr?: string | null) => {
     if (!dateStr) return null;
     const diff = new Date(dateStr).getTime() - new Date().getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
@@ -63,6 +63,12 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
   const isMaintenanceClose = kmSinceLast >= vehicle.maintenanceThresholdKm - 500;
   const isMaintenanceOver = kmSinceLast >= vehicle.maintenanceThresholdKm;
 
+  const getImageUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${import.meta.env.VITE_API_URL.replace('/api', '')}${url}`;
+  };
+
   return (
     <div 
       onClick={() => onEdit(vehicle)}
@@ -72,7 +78,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
       <div className="aspect-video relative overflow-hidden bg-slate-50">
         {vehicle.imageUrl ? (
           <img 
-            src={`${import.meta.env.VITE_API_URL.replace('/api', '')}${vehicle.imageUrl}`} 
+            src={getImageUrl(vehicle.imageUrl)} 
             alt={vehicle.model} 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
