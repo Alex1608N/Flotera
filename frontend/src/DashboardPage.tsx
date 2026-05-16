@@ -12,7 +12,8 @@ import {
   ShieldCheck, 
   ClipboardCheck,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  Settings
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
@@ -56,7 +57,11 @@ export default function DashboardPage({
 
     return (
       <div className="space-y-8 max-w-4xl mx-auto">
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-[32px] text-white shadow-xl relative overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-[32px] text-white shadow-xl relative overflow-hidden"
+        >
            <div className="relative z-10">
               <h1 className="text-3xl font-black mb-2 flex items-center gap-3">
                 <User className="text-blue-400" />
@@ -65,7 +70,7 @@ export default function DashboardPage({
               <p className="text-slate-400 font-medium">Iată detaliile vehiculului tău asignat.</p>
            </div>
            <Car className="absolute right-[-20px] bottom-[-20px] text-white/5 w-64 h-64 rotate-[-10deg]" />
-        </div>
+        </motion.div>
 
         {!assignedVehicle ? (
           <div className="bg-white border-2 border-dashed border-slate-200 rounded-[32px] p-16 text-center shadow-sm">
@@ -161,6 +166,7 @@ export default function DashboardPage({
         return {
           id: `${v.id}-${type}`,
           licensePlate: v.licensePlate,
+          vehicle: v,
           type,
           date,
           isExpired: date < today,
@@ -190,30 +196,49 @@ export default function DashboardPage({
         {/* Left Column: Stats & Distribution */}
         <div className="flex-1 space-y-8">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm"
+            >
                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4">
                   <Car size={24} />
                </div>
                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Flotă Totală</p>
                <p className="text-3xl font-black text-slate-900">{stats.total}</p>
-            </div>
-            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm"
+            >
                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${stats.critical > 0 ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-300'}`}>
                   <AlertTriangle size={24} />
                </div>
                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alerte Critice</p>
                <p className={`text-3xl font-black ${stats.critical > 0 ? 'text-red-600' : 'text-slate-900'}`}>{stats.critical}</p>
-            </div>
-            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm"
+            >
                <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4">
                   <CheckCircle2 size={24} />
                </div>
                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vehicule OK</p>
                <p className="text-3xl font-black text-emerald-600">{stats.ok}</p>
-            </div>
+            </motion.div>
           </div>
 
-          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden"
+          >
              <div className="flex items-center justify-between mb-8">
                 <div>
                    <h3 className="text-lg font-black text-slate-900">Distribuție Stare Flotă</h3>
@@ -261,7 +286,7 @@ export default function DashboardPage({
                   </div>
                 ))}
              </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Right Column: Expirations & Issues */}
@@ -289,7 +314,11 @@ export default function DashboardPage({
                    </div>
                  ) : (
                    expirations.map((exp) => (
-                     <div key={exp.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-all hover:translate-x-1 ${exp.isExpired ? 'bg-red-50 border-red-100' : 'bg-white border-slate-100 hover:border-blue-200 shadow-sm'}`}>
+                     <button 
+                        key={exp.id} 
+                        onClick={() => onEdit(exp.vehicle)}
+                        className={`w-full p-4 rounded-2xl border flex items-center justify-between transition-all hover:translate-x-1 text-left ${exp.isExpired ? 'bg-red-50 border-red-100' : 'bg-white border-slate-100 hover:border-blue-200 shadow-sm'}`}
+                     >
                         <div className="flex items-center gap-3">
                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${exp.isExpired ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600'}`}>
                               {exp.type === 'ITP' ? <ClipboardCheck size={18} /> : <ShieldCheck size={18} />}
@@ -301,8 +330,8 @@ export default function DashboardPage({
                               </p>
                            </div>
                         </div>
-                        <ChevronRight size={16} className="text-slate-300" />
-                     </div>
+                        <Settings size={16} className="text-slate-300" />
+                     </button>
                    ))
                  )}
               </div>
