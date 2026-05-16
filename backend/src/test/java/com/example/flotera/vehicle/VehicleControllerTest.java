@@ -62,7 +62,7 @@ class VehicleControllerTest {
         Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
         vehicle.setId(1L);
 
-        VehicleRequest request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", null, null, null);
+        VehicleRequest request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
 
         // Mock security: load user from DB during JWT conversion
         when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
@@ -122,7 +122,7 @@ class VehicleControllerTest {
         // Arrange
         String driverId = "driver-id";
         User driver = new User(driverId, "driver@test.com", "Driver Name", Role.DRIVER);
-        VehicleRequest request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", null, null, null);
+        VehicleRequest request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
 
         when(userRepository.findById(driverId)).thenReturn(Optional.of(driver));
 
@@ -137,7 +137,7 @@ class VehicleControllerTest {
     @Test
     void createVehicle_ShouldReturnBadRequest_WhenValidationFails() throws Exception {
         // Arrange
-        VehicleRequest invalidRequest = new VehicleRequest("", "", 1800, "too-short", null, null, null);
+        VehicleRequest invalidRequest = new VehicleRequest("", "", 1800, "too-short", null, null, null, null, null, null, null, null);
 
         // Act & Assert
         mockMvc.perform(post("/api/vehicles")
@@ -155,7 +155,7 @@ class VehicleControllerTest {
         Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
         vehicle.setId(1L);
 
-        VehicleRequest request = new VehicleRequest("B-999-XYZ", "Dacia Logan", 2022, "12345678901234567", null, null, null);
+        VehicleRequest request = new VehicleRequest("B-999-XYZ", "Dacia Logan", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
 
         when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
         when(vehicleService.updateVehicle(eq(1L), any(VehicleRequest.class), eq(ownerId))).thenReturn(vehicle);
