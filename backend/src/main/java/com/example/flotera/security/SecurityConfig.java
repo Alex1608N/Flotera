@@ -126,6 +126,15 @@ public class SecurityConfig {
             User user = userRepository.findById(userId).orElseGet(() -> {
                 String actualEmail = jwt.getClaimAsString("email");
                 
+                // Încercăm să extragem numele din metadata Supabase
+                String fullName = "Utilizator Nou";
+                java.util.Map<String, Object> metadata = jwt.getClaimAsMap("user_metadata");
+                if (metadata != null && metadata.containsKey("full_name")) {
+                    fullName = String.valueOf(metadata.get("full_name"));
+                } else if (jwt.getClaimAsString("name") != null) {
+                    fullName = jwt.getClaimAsString("name");
+                }
+
                 // Toți utilizatorii noi sunt ȘOFERI implicit
                 Role defaultRole = Role.DRIVER;
                 
@@ -134,7 +143,7 @@ public class SecurityConfig {
                     defaultRole = Role.OWNER;
                 }
                 
-                User newUser = new User(userId, actualEmail != null ? actualEmail : "user@local", "Utilizator Supabase", defaultRole);
+                User newUser = new User(userId, actualEmail != null ? actualEmail : "user@local", fullName, defaultRole);
                 return userRepository.save(newUser);
             });
 

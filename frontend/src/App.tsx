@@ -78,6 +78,7 @@ function App() {
           onShowIncidents={handleShowIncidents} 
           onReportIncident={handleReportIncident} 
           onShowHistory={handleShowHistory}
+          onNavigate={setCurrentPage}
         />
       )}
       {currentPage === 'fleet' && (

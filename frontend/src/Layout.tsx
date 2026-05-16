@@ -92,7 +92,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
           </button>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1.5 overflow-y-auto py-4 scrollbar-none hover:scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+        <nav className="flex-1 px-3 space-y-1.5 overflow-y-auto py-4">
           {navigation.map((item) => {
             // Ascunde pagini bazat pe rol
             if (item.id === 'fleet' && user?.role === 'DRIVER') return null;
@@ -142,7 +142,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
               )}
             </div>
             <div className={`ml-3 text-left transition-all duration-300 ${!isSidebarOpen ? 'opacity-0 -translate-x-10 w-0' : 'opacity-100 translate-x-0'}`}>
-              <p className="text-sm font-black text-white truncate">{user?.name || 'Utilizator'}</p>
+              <p className="text-sm font-black text-white truncate">{user?.name || 'Încărcare...'}</p>
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{user?.role === 'OWNER' ? 'Proprietar' : 'Șofer'}</p>
             </div>
           </button>

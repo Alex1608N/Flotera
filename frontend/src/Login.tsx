@@ -35,13 +35,15 @@ export default function Login() {
         setError(error.message)
       } else {
         if (data.session) {
-          setSuccess('Cont creat cu succes! Te conectăm...')
+          setSuccess('Cont creat cu succes! Te redirecționăm către dashboard...')
+          // onAuthStateChange din App.tsx va detecta sesiunea și va schimba pagina
         } else {
-          setSuccess('Cont creat cu succes! Te poți conecta acum.')
+          setSuccess('Cont creat cu succes! Te rugăm să îți verifici email-ul pentru confirmare sau te poți conecta acum.')
           setIsLogin(true)
         }
       }
     }
+
     setLoading(false)
   }
 

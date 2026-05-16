@@ -3,17 +3,35 @@ import { vehicleApi } from './api/vehicleApi';
 import { userApi } from './api/userApi';
 import type { Vehicle } from './api/vehicleApi';
 import VehicleCard from './components/VehicleCard';
-import { AlertTriangle, CheckCircle2, Car, User } from 'lucide-react';
+import { 
+  AlertTriangle, 
+  CheckCircle2, 
+  Car, 
+  User, 
+  Clock, 
+  ShieldCheck, 
+  ClipboardCheck,
+  ChevronRight,
+  TrendingUp
+} from 'lucide-react';
 import { motion } from 'framer-motion';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 
 interface DashboardPageProps {
   onEdit: (vehicle: Vehicle) => void;
   onShowIncidents: (vehicle: Vehicle) => void;
   onReportIncident: (vehicle: Vehicle) => void;
   onShowHistory: (vehicle: Vehicle) => void;
+  onNavigate?: (page: string) => void;
 }
 
-export default function DashboardPage({ onEdit, onShowIncidents, onReportIncident, onShowHistory }: DashboardPageProps) {
+export default function DashboardPage({ 
+  onEdit, 
+  onShowIncidents, 
+  onReportIncident, 
+  onShowHistory,
+  onNavigate 
+}: DashboardPageProps) {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: userApi.getCurrentUser
@@ -24,19 +42,6 @@ export default function DashboardPage({ onEdit, onShowIncidents, onReportInciden
     queryFn: vehicleApi.getAll
   });
 
-  // Logica de sortare: CRITICAL > WARNING > OK
-  const sortedVehicles = [...vehicles].sort((a, b) => {
-    const priority = { CRITICAL: 0, WARNING: 1, OK: 2 } as Record<string, number>;
-    return (priority[a.status] ?? 2) - (priority[b.status] ?? 2);
-  });
-
-  const stats = {
-    total: vehicles.length,
-    critical: vehicles.filter(v => v.status === 'CRITICAL').length,
-    warning: vehicles.filter(v => v.status === 'WARNING').length,
-    ok: vehicles.filter(v => v.status === 'OK').length
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -45,8 +50,9 @@ export default function DashboardPage({ onEdit, onShowIncidents, onReportInciden
     );
   }
 
+  // Driver View - keep it focused on their vehicle
   if (user?.role === 'DRIVER') {
-    const assignedVehicle = vehicles[0]; // Drivers get only their assigned vehicle from API
+    const assignedVehicle = vehicles[0]; 
 
     return (
       <div className="space-y-8 max-w-4xl mx-auto">
@@ -77,7 +83,7 @@ export default function DashboardPage({ onEdit, onShowIncidents, onReportInciden
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                <VehicleCard 
                   vehicle={assignedVehicle} 
-                  onEdit={() => {}} // Drivers usually don't edit basic vehicle info
+                  onEdit={() => {}} 
                   onDelete={() => {}} 
                   onShowIncidents={onShowIncidents}
                   onReportIncident={onReportIncident}
@@ -127,98 +133,237 @@ export default function DashboardPage({ onEdit, onShowIncidents, onReportInciden
     );
   }
 
+  // Owner View - Summary Insights
+  const stats = {
+    total: vehicles.length,
+    critical: vehicles.filter(v => v.status === 'CRITICAL').length,
+    warning: vehicles.filter(v => v.status === 'WARNING').length,
+    ok: vehicles.filter(v => v.status === 'OK').length
+  };
+
+  const chartData = [
+    { name: 'Critice', value: stats.critical, color: '#ef4444' },
+    { name: 'Atenție', value: stats.warning, color: '#f59e0b' },
+    { name: 'OK', value: stats.ok, color: '#10b981' },
+  ].filter(d => d.value > 0);
+
+  // Analiză expirări documente
+  const expirations = vehicles.flatMap(v => {
+    const items = [];
+    const today = new Date();
+    const thirtyDaysLater = new Date();
+    thirtyDaysLater.setDate(today.getDate() + 30);
+
+    const checkExpiration = (dateStr: string | undefined, type: string) => {
+      if (!dateStr) return null;
+      const date = new Date(dateStr);
+      if (date <= thirtyDaysLater) {
+        return {
+          id: `${v.id}-${type}`,
+          licensePlate: v.licensePlate,
+          type,
+          date,
+          isExpired: date < today,
+          daysLeft: Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+        };
+      }
+      return null;
+    };
+
+    const itp = checkExpiration(v.itpExpiration, 'ITP');
+    const rca = checkExpiration(v.rcaExpiration, 'RCA');
+    const rov = checkExpiration(v.rovinietaExpiration, 'Rovinietă');
+
+    if (itp) items.push(itp);
+    if (rca) items.push(rca);
+    if (rov) items.push(rov);
+
+    return items;
+  }).sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  // Vehicule cu incidente active
+  const activeIncidentVehicles = vehicles.filter(v => v.hasActiveIncidents);
+
   return (
-    <div className="max-w-7xl mx-auto space-y-10 pb-10">
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-all group"
-        >
-          <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
-            <Car size={28} />
-          </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Total Flotă</p>
-            <p className="text-3xl font-black text-slate-900">{stats.total}</p>
-          </div>
-        </motion.div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-all group"
-        >
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform ${stats.critical > 0 ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-400'}`}>
-            <AlertTriangle size={28} />
-          </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Alerte Critice</p>
-            <p className={`text-3xl font-black ${stats.critical > 0 ? 'text-red-600' : 'text-slate-900'}`}>{stats.critical}</p>
-          </div>
-        </motion.div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-5 hover:shadow-md transition-all group"
-        >
-          <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
-            <CheckCircle2 size={28} />
-          </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Vehicule OK</p>
-            <p className="text-3xl font-black text-emerald-600">{stats.ok}</p>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Sorted Fleet List */}
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-2">
-          <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">STARE FLOTĂ</h2>
-            <p className="text-slate-500 text-sm font-medium mt-0.5">Monitorizare în timp real a întregii flote</p>
-          </div>
-          {stats.warning > 0 && (
-            <div className="text-xs font-black text-amber-600 bg-amber-50 px-4 py-2 rounded-xl border border-amber-100 uppercase tracking-wider animate-pulse">
-              {stats.warning} vehicule necesită atenție
+    <div className="max-w-7xl mx-auto space-y-8 pb-10">
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Left Column: Stats & Distribution */}
+        <div className="flex-1 space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+               <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4">
+                  <Car size={24} />
+               </div>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Flotă Totală</p>
+               <p className="text-3xl font-black text-slate-900">{stats.total}</p>
             </div>
-          )}
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${stats.critical > 0 ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-300'}`}>
+                  <AlertTriangle size={24} />
+               </div>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alerte Critice</p>
+               <p className={`text-3xl font-black ${stats.critical > 0 ? 'text-red-600' : 'text-slate-900'}`}>{stats.critical}</p>
+            </div>
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4">
+                  <CheckCircle2 size={24} />
+               </div>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vehicule OK</p>
+               <p className="text-3xl font-black text-emerald-600">{stats.ok}</p>
+            </div>
+          </div>
+
+          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
+             <div className="flex items-center justify-between mb-8">
+                <div>
+                   <h3 className="text-lg font-black text-slate-900">Distribuție Stare Flotă</h3>
+                   <p className="text-xs text-slate-500 font-medium">Analiza sănătății vehiculelor</p>
+                </div>
+                <TrendingUp className="text-blue-500" />
+             </div>
+             
+             <div className="h-[240px] w-full flex items-center justify-center">
+                {vehicles.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={8}
+                        dataKey="value"
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-slate-300 font-bold">Fără date disponibile</div>
+                )}
+                
+                <div className="absolute flex flex-col items-center">
+                    <span className="text-2xl font-black text-slate-900">{vehicles.length}</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Mașini</span>
+                </div>
+             </div>
+
+             <div className="grid grid-cols-3 gap-4 mt-4">
+                {chartData.map((d) => (
+                  <div key={d.name} className="flex flex-col items-center p-3 rounded-2xl bg-slate-50 border border-slate-100/50">
+                     <div className="w-2 h-2 rounded-full mb-2" style={{ backgroundColor: d.color }} />
+                     <span className="text-[10px] font-black text-slate-400 uppercase">{d.name}</span>
+                     <span className="text-sm font-black text-slate-900">{Math.round((d.value / vehicles.length) * 100)}%</span>
+                  </div>
+                ))}
+             </div>
+          </div>
         </div>
 
-        {vehicles.length === 0 ? (
-          <div className="bg-white border-2 border-dashed border-slate-200 rounded-[40px] p-20 text-center shadow-sm">
-            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
-               <Car size={40} />
-            </div>
-            <h3 className="text-xl font-black text-slate-900">Niciun vehicul în flotă</h3>
-            <p className="text-slate-500 mt-2 max-w-sm mx-auto">Începe prin a adăuga prima mașină din secțiunea "Flota Mea" pentru a vedea statisticile aici.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {sortedVehicles.map((vehicle, idx) => (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: idx * 0.05 }}
-                key={vehicle.id}
+        {/* Right Column: Expirations & Issues */}
+        <div className="w-full md:w-[400px] space-y-8">
+           <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-full min-h-[400px]">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                   <Clock className="text-blue-600" size={20} />
+                   <h3 className="text-lg font-black text-slate-900">Alerte Expirare</h3>
+                </div>
+                {expirations.length > 0 && (
+                   <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-full uppercase">
+                      {expirations.length} Alerte
+                   </span>
+                )}
+              </div>
+
+              <div className="flex-1 space-y-4 overflow-y-auto pr-2 scrollbar-none">
+                 {expirations.length === 0 ? (
+                   <div className="flex flex-col items-center justify-center h-full text-center py-10">
+                      <div className="w-12 h-12 bg-slate-50 text-slate-200 rounded-full flex items-center justify-center mb-4">
+                         <ShieldCheck size={24} />
+                      </div>
+                      <p className="text-sm font-bold text-slate-400">Toate documentele sunt la zi pentru următoarele 30 de zile.</p>
+                   </div>
+                 ) : (
+                   expirations.map((exp) => (
+                     <div key={exp.id} className={`p-4 rounded-2xl border flex items-center justify-between transition-all hover:translate-x-1 ${exp.isExpired ? 'bg-red-50 border-red-100' : 'bg-white border-slate-100 hover:border-blue-200 shadow-sm'}`}>
+                        <div className="flex items-center gap-3">
+                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${exp.isExpired ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600'}`}>
+                              {exp.type === 'ITP' ? <ClipboardCheck size={18} /> : <ShieldCheck size={18} />}
+                           </div>
+                           <div>
+                              <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{exp.licensePlate}</p>
+                              <p className={`text-[10px] font-black uppercase ${exp.isExpired ? 'text-red-500' : 'text-slate-400'}`}>
+                                 {exp.type} • {exp.isExpired ? 'EXPIRAT' : `Expiră în ${exp.daysLeft} zile`}
+                              </p>
+                           </div>
+                        </div>
+                        <ChevronRight size={16} className="text-slate-300" />
+                     </div>
+                   ))
+                 )}
+              </div>
+
+              {onNavigate && (
+                <button 
+                  onClick={() => onNavigate('fleet')}
+                  className="mt-6 w-full py-4 bg-slate-900 text-white text-sm font-black rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-800 transition-all active:scale-95 group"
+                >
+                  Vezi Toată Flota
+                  <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
+                </button>
+              )}
+           </div>
+
+           {activeIncidentVehicles.length > 0 && (
+              <div className="bg-orange-50 p-6 rounded-[2rem] border border-orange-100">
+                 <div className="flex items-center gap-2 mb-4">
+                    <AlertTriangle className="text-orange-600" size={20} />
+                    <h3 className="text-sm font-black text-orange-900 uppercase tracking-wider">Incidente Active</h3>
+                 </div>
+                 <p className="text-xs text-orange-800 font-medium mb-4">
+                    Există {activeIncidentVehicles.length} vehicule cu probleme raportate care necesită atenție.
+                 </p>
+                 <div className="flex flex-wrap gap-2">
+                    {activeIncidentVehicles.slice(0, 3).map(v => (
+                       <span key={v.id} className="px-3 py-1 bg-white/50 text-orange-700 text-[10px] font-black rounded-lg border border-orange-200/50 uppercase">
+                          {v.licensePlate}
+                       </span>
+                    ))}
+                    {activeIncidentVehicles.length > 3 && (
+                       <span className="text-[10px] font-black text-orange-400">+{activeIncidentVehicles.length - 3} altele</span>
+                    )}
+                 </div>
+              </div>
+           )}
+        </div>
+      </div>
+      
+      {/* Quick Access Grid */}
+      <div className="space-y-6">
+        <h3 className="text-xl font-black text-slate-900 tracking-tight ml-2">Acces Rapid</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+           {[
+             { label: 'Adaugă Vehicul', icon: Car, action: () => onNavigate?.('fleet'), color: 'bg-blue-600' },
+             { label: 'Echipa Mea', icon: User, action: () => onNavigate?.('drivers'), color: 'bg-slate-900' },
+             { label: 'Notificări', icon: Clock, action: () => onNavigate?.('notifications'), color: 'bg-indigo-600' },
+             { label: 'Profil Admin', icon: ShieldCheck, action: () => onNavigate?.('profile'), color: 'bg-emerald-600' },
+           ].map((item, idx) => (
+              <button
+                key={idx}
+                onClick={item.action}
+                className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center gap-3 active:scale-95"
               >
-                <VehicleCard 
-                  vehicle={vehicle} 
-                  onEdit={onEdit}
-                  onDelete={() => {}} 
-                  onShowIncidents={onShowIncidents}
-                  onReportIncident={onReportIncident}
-                  onShowHistory={onShowHistory}
-                />
-              </motion.div>
-            ))}
-          </div>
-        )}
+                 <div className={`w-12 h-12 ${item.color} text-white rounded-2xl flex items-center justify-center shadow-lg shadow-${item.color.split('-')[1]}-200`}>
+                    <item.icon size={22} />
+                 </div>
+                 <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{item.label}</span>
+              </button>
+           ))}
+        </div>
       </div>
     </div>
   );
