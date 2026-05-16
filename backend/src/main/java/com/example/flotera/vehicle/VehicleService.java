@@ -15,8 +15,12 @@ public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final UserRepository userRepository;
     private final OdometerReadingRepository odometerReadingRepository;
+    private final StorageService storageService;
 
-    public VehicleService(VehicleRepository vehicleRepository, UserRepository userRepository, StorageService storageService, OdometerReadingRepository odometerReadingRepository) {
+    public VehicleService(VehicleRepository vehicleRepository, 
+                          UserRepository userRepository, 
+                          StorageService storageService, 
+                          OdometerReadingRepository odometerReadingRepository) {
         this.vehicleRepository = vehicleRepository;
         this.userRepository = userRepository;
         this.storageService = storageService;
