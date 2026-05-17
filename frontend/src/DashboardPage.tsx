@@ -44,6 +44,13 @@ export default function DashboardPage({
     queryFn: vehicleApi.getAll
   });
 
+  // Odometer Analytics Data - Move to top to avoid conditional hook call
+  const { data: history = [] } = useQuery({
+    queryKey: ['odometer-history', vehicles[0]?.id],
+    queryFn: () => vehicles[0] ? vehicleApi.getOdometerHistory(vehicles[0].id) : Promise.resolve([]),
+    enabled: !!vehicles[0], // Only run if we have at least one vehicle
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -190,13 +197,6 @@ export default function DashboardPage({
 
   // Vehicule cu incidente active
   const activeIncidentVehicles = vehicles.filter(v => v.hasActiveIncidents);
-
-  // Odometer Analytics Data
-  const { data: history = [] } = useQuery({
-    queryKey: ['odometer-history', vehicles[0]?.id],
-    queryFn: () => vehicles[0] ? vehicleApi.getOdometerHistory(vehicles[0].id) : Promise.resolve([]),
-    enabled: vehicles.length > 0
-  });
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-10">
