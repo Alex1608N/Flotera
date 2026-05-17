@@ -13,11 +13,10 @@ import {
   ClipboardCheck,
   ChevronRight,
   TrendingUp,
-  Settings,
-  BarChart3
+  Settings
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 
 interface DashboardPageProps {
   onEdit: (vehicle: Vehicle) => void;
