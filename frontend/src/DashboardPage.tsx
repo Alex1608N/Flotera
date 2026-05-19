@@ -152,7 +152,7 @@ export default function DashboardPage({
     { name: 'OK', value: stats.ok, color: '#10b981' },
   ].filter(d => d.value > 0);
 
-  // Analiză expirări documente
+  // Analiza expirari documente
   const expirations = vehicles.flatMap(v => {
     const items = [];
     const today = new Date();
@@ -241,8 +241,8 @@ export default function DashboardPage({
           >
              <div className="flex items-center justify-between mb-8">
                 <div>
-                   <h3 className="text-lg font-black text-slate-900">Distribuție Stare Flotă</h3>
-                   <p className="text-xs text-slate-500 font-medium">Analiza sănătății vehiculelor</p>
+                   <h3 className="text-lg font-black text-slate-900">Sumar Flota</h3>
+                   <p className="text-xs text-slate-500 font-medium">Sanatate vehicule</p>
                 </div>
                 <TrendingUp className="text-blue-500" />
              </div>
@@ -295,7 +295,7 @@ export default function DashboardPage({
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                    <Clock className="text-blue-600" size={20} />
-                   <h3 className="text-lg font-black text-slate-900">Alerte Expirare</h3>
+                   <h3 className="text-lg font-black text-slate-900">Expirari documente</h3>
                 </div>
                 {expirations.length > 0 && (
                    <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-full uppercase">

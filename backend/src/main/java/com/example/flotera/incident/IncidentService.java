@@ -36,11 +36,11 @@ public class IncidentService {
     @Transactional
     public IncidentResponse reportIncident(Long vehicleId, String description, MultipartFile file, String requesterId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost gasit."));
 
-        // Verificăm permisiunile
+        // Verificam permisiunile
         if (!vehicle.getOwner().getId().equals(requesterId)) {
-            throw new SecurityException("Nu aveți permisiunea de a raporta un incident pentru acest vehicul.");
+            throw new SecurityException("Nu aveti permisiunea de a raporta un incident pentru acest vehicul.");
         }
 
         Incident incident = new Incident(vehicle, description);
@@ -57,10 +57,10 @@ public class IncidentService {
 
     public List<IncidentResponse> getIncidentsByVehicle(Long vehicleId, String requesterId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost gasit."));
 
         if (!vehicle.getOwner().getId().equals(requesterId)) {
-            throw new SecurityException("Nu aveți permisiunea de a vedea incidentele acestui vehicul.");
+            throw new SecurityException("Nu aveti permisiunea de a vedea incidentele acestui vehicul.");
         }
 
         return incidentRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId)
@@ -72,10 +72,10 @@ public class IncidentService {
     @Transactional
     public IncidentResponse resolveIncident(Long incidentId, String requesterId) {
         Incident incident = incidentRepository.findById(incidentId)
-                .orElseThrow(() -> new IllegalArgumentException("Incidentul nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Incidentul nu a fost gasit."));
 
         if (!incident.getVehicle().getOwner().getId().equals(requesterId)) {
-            throw new SecurityException("Nu aveți permisiunea de a modifica acest incident.");
+            throw new SecurityException("Nu aveti permisiunea de a modifica acest incident.");
         }
 
         incident.setStatus(IncidentStatus.RESOLVED);
@@ -86,9 +86,9 @@ public class IncidentService {
         ServiceRecord record = new ServiceRecord(
                 incident.getVehicle(),
                 saved.getResolvedAt().toLocalDate(),
-                incident.getVehicle().getOdometer(), // Folosim odometrul curent al mașinii
-                "REPARAȚIE INCIDENT: " + incident.getDescription(),
-                0.0, // Costul va fi editat ulterior în service history dacă e cazul
+                incident.getVehicle().getOdometer(), // Folosim odometrul curent al masinii
+                "REPARATIE INCIDENT: " + incident.getDescription(),
+                0.0, // Costul va fi editat ulterior in service history daca e cazul
                 ServiceType.REPAIR
         );
         serviceRecordRepository.save(record);

@@ -84,7 +84,7 @@ class ExpirationEngineServiceTest {
     @Test
     void shouldReturnWarningWhenMaintenanceTimeSoon() {
         Vehicle v = new Vehicle();
-        v.setLastMaintenanceDate(NOW.minusMonths(11).minusDays(15)); // Expira peste ~15 zile
+        v.setLastMaintenanceDate(NOW.minusMonths(11).minusDays(15)); // Expira curand
         v.setMaintenanceThresholdMonths(12);
 
         assertEquals(VehicleStatus.WARNING, service.calculateStatus(v, false));
@@ -95,9 +95,9 @@ class ExpirationEngineServiceTest {
         Vehicle v = new Vehicle();
         v.setOdometer(2000L);
         v.setLastMaintenanceKm(1000L);
-        v.setMaintenanceThresholdKm(10000L); // KM sunt OK
+        v.setMaintenanceThresholdKm(10000L); // KM OK
 
-        v.setLastMaintenanceDate(NOW.minusMonths(11).minusDays(15)); // Timp e WARNING
+        v.setLastMaintenanceDate(NOW.minusMonths(11).minusDays(15)); // Timp WARNING
         v.setMaintenanceThresholdMonths(12);
 
         assertEquals(VehicleStatus.WARNING, service.calculateStatus(v, false));

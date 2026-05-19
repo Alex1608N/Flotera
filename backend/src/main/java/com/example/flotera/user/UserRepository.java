@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
     
-    // Spring Data JPA va genera automat logica pentru această metodă!
+    // Logica generata automat
     Optional<User> findByEmail(String email);
 
     List<User> findByRole(Role role);

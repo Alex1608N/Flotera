@@ -53,7 +53,7 @@ public class FileSystemStorageService implements StorageService {
                     .normalize().toAbsolutePath();
 
             if (!destinationFile.getParent().equals(destinationFolder.toAbsolutePath())) {
-                // Securitate: verificăm să nu se încerce scrierea în afara folderului root
+                // Securitate: verificare folder root
                 throw new RuntimeException("Nu se poate stoca fișierul în afara directorului curent.");
             }
 
@@ -61,7 +61,7 @@ public class FileSystemStorageService implements StorageService {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            // Returnăm URL-ul pe care îl va folosi frontend-ul
+            // URL pentru frontend
             return "/api/uploads/" + folder + "/" + storedFilename;
         } catch (IOException e) {
             throw new RuntimeException("Eroare la salvarea fișierului.", e);
@@ -75,6 +75,6 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public void deleteAll() {
-        // Implementare opțională pentru curățenie în teste
+        // Optional
     }
 }

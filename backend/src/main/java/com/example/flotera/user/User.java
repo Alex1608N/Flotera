@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 @Table(name = "users")
 public class User {
 
-    // Folosim String pentru a mapa direct UUID-ul generat de Supabase (auth.users.id)
+    // UUID de la Supabase
     @Id
     private String id;
 
@@ -34,7 +34,7 @@ public class User {
         this.role = role;
     }
 
-    // Getteri și Setteri
+    // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

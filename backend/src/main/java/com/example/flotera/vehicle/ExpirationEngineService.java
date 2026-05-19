@@ -21,12 +21,12 @@ public class ExpirationEngineService {
         }
 
         VehicleStatus worst = VehicleStatus.OK;
-        // 1. Verificăm Documentele Legale (ITP, RCA, Rovinietă)
+        // 1. Verificam Documentele Legale (ITP, RCA, Rovinieta)
         worst = updateWorstStatusFromDate(worst, v.getItpExpiration(), now, 30);
         worst = updateWorstStatusFromDate(worst, v.getRcaExpiration(), now, 30);
         worst = updateWorstStatusFromDate(worst, v.getRovinietaExpiration(), now, 30);
         
-        // 2. Verificăm Mentenanță (Kilometraj)
+        // 2. Verificam Mentenanta (Kilometraj)
         if (v.getOdometer() != null && v.getLastMaintenanceKm() != null) {
             long kmSinceLast = v.getOdometer() - v.getLastMaintenanceKm();
             long threshold = v.getMaintenanceThresholdKm() != null ? v.getMaintenanceThresholdKm() : 10000L;
@@ -38,14 +38,14 @@ public class ExpirationEngineService {
             }
         }
         
-        // 3. Verificăm Mentenanță (Timp)
+        // 3. Verificam Mentenanta (Timp)
         if (v.getLastMaintenanceDate() != null) {
             int monthsThreshold = v.getMaintenanceThresholdMonths() != null ? v.getMaintenanceThresholdMonths() : 12;
             LocalDate nextMaintenanceDate = v.getLastMaintenanceDate().plusMonths(monthsThreshold);
-            // Pentru mentenanță timp, pragul de warning este de 1 lună (aprox 30 zile)
+            // Prag warning: 1 luna
             worst = updateWorstStatusFromDate(worst, nextMaintenanceDate, now, 30);
         } else if (v.getYear() != null) {
-            // Fallback: un an de la începutul anului fabricației (dacă nu avem dată revizie)
+            // Fallback: un an de la fabricatie
             LocalDate fallbackDate = LocalDate.of(v.getYear(), 1, 1).plusYears(1);
             worst = updateWorstStatusFromDate(worst, fallbackDate, now, 30);
         }
@@ -54,17 +54,17 @@ public class ExpirationEngineService {
     }
 
     /**
-     * Actualizează starea curentă bazându-se pe o dată de expirare și un prag de warning în zile.
+     * Actualizeaza starea.
      */
     private VehicleStatus updateWorstStatusFromDate(VehicleStatus current, LocalDate expiration, LocalDate now, int warningDaysThreshold) {
         if (expiration == null) return current;
         
-        // Deja expirat sau expiră azi -> CRITICAL
+        // Expirat -> CRITICAL
         if (expiration.isBefore(now) || expiration.isEqual(now)) {
             return VehicleStatus.CRITICAL;
         }
         
-        // Expiră în fereastra de warning -> WARNING
+        // Expira in fereastra de warning -> WARNING
         if (expiration.isBefore(now.plusDays(warningDaysThreshold))) {
             if (current != VehicleStatus.CRITICAL) {
                 return VehicleStatus.WARNING;

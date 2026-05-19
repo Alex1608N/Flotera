@@ -39,7 +39,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      // Pregătim datele pentru trimitere (convertim "" în null pentru date)
+      // Date trimitere
       const submitData = {
         ...formData,
         itpExpiration: formData.itpExpiration || null,
@@ -50,26 +50,26 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
 
       let vehicle;
       if (isEditMode && vehicleToEdit) {
-        // 1. Actualizăm mașina existentă
+        // 1. Update
         vehicle = await vehicleApi.update(vehicleToEdit.id, submitData);
       } else {
-        // 1. Creăm mașina nouă
+        // 1. Create
         vehicle = await vehicleApi.create(submitData);
       }
       
-      // 2. Dacă avem o imagine nouă, o încărcăm
+      // 2. Upload imagine
       if (imageFile && vehicle) {
         await vehicleApi.uploadImage(vehicle.id, imageFile);
       }
       return vehicle;
     },
     onSuccess: () => {
-      // Invalidăm cache-ul ca să forțăm reîncărcarea listei
+      // Invalideaza cache
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       onClose();
     },
     onError: (error: Error | unknown) => {
-      // Afișăm eroarea primită de la backend (dacă există)
+      // Eroare backend
       console.error('Error saving vehicle:', error);
       const msg = (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Eroare la salvarea vehiculului. Verificați datele.';
       setErrorMsg(msg);
@@ -90,7 +90,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      {/* Bottom Sheet pe mobil, Modal clasic pe desktop */}
+      {/* Modal */}
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
         <div className="flex justify-between items-center p-6 border-b border-gray-100">
           <h2 className="text-xl font-bold text-gray-900">
@@ -109,7 +109,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
           )}
 
           <form id="vehicle-form" onSubmit={handleSubmit} className="space-y-5">
-            {/* Zona de Upload Poză */}
+            {/* Upload */}
             <div className="flex justify-center">
               <label className="relative group cursor-pointer w-32 h-32 rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 flex flex-col items-center justify-center overflow-hidden hover:border-blue-500 transition-colors">
                 {imageFile ? (
@@ -129,7 +129,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
               </label>
             </div>
 
-            {/* Câmpuri Text */}
+            {/* Campuri */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Model Vehicul</label>
@@ -208,7 +208,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                 </div>
               </div>
 
-              {/* Sectiune Documente */}
+              {/* Documente */}
               <div className="md:col-span-2 mt-4">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b pb-2">Documente Legale</h3>
                 <div className="space-y-4">
@@ -242,7 +242,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                 </div>
               </div>
 
-              {/* Sectiune Mentenanță */}
+              {/* Mentenanta */}
               <div className="md:col-span-2 mt-4">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b pb-2">Mentenanță & Praguri</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

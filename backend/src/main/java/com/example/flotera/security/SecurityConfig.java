@@ -73,7 +73,7 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource() {
             CorsConfiguration configuration = new CorsConfiguration();
             
-            // Permitem orice origine pentru a elimina definitiv erorile de CORS la examen
+            // Permite orice origine
             configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
             configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
             configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
@@ -89,11 +89,11 @@ public class SecurityConfig {
     public JwtDecoder jwtDecoder() {
         return token -> {
             try {
-                // Pentru dezvoltare locală, acceptăm token-ul de la Supabase fără validarea semnăturii
+                // Fara validare semnatura local
                 SignedJWT signedJWT = SignedJWT.parse(token);
                 java.util.Map<String, Object> claims = new java.util.HashMap<>(signedJWT.getJWTClaimsSet().getClaims());
                 
-                // Spring Security cere ca timpii să fie java.time.Instant, nu java.util.Date
+                // Instant conversion
                 if (claims.get("iat") instanceof java.util.Date date) {
                     claims.put("iat", date.toInstant());
                 }
@@ -122,11 +122,11 @@ public class SecurityConfig {
                 email = "user_" + userId.substring(0, 5) + "@flotera.local";
             }
 
-            // Auto-creăm utilizatorul în H2 dacă nu există (pentru sincronizarea cu Supabase)
+            // Sync user
             User user = userRepository.findById(userId).orElseGet(() -> {
                 String actualEmail = jwt.getClaimAsString("email");
                 
-                // Încercăm să extragem numele din metadata Supabase
+                // Extract name
                 String fullName = "Utilizator Nou";
                 java.util.Map<String, Object> metadata = jwt.getClaimAsMap("user_metadata");
                 if (metadata != null && metadata.containsKey("full_name")) {
@@ -135,10 +135,10 @@ public class SecurityConfig {
                     fullName = jwt.getClaimAsString("name");
                 }
 
-                // Toți utilizatorii noi sunt ȘOFERI implicit
+                // Default: Driver
                 Role defaultRole = Role.DRIVER;
                 
-                // DOAR alex@flotera.ro este OWNER implicit
+                // Special case for admin
                 if ("alex@flotera.ro".equalsIgnoreCase(actualEmail)) {
                     defaultRole = Role.OWNER;
                 }

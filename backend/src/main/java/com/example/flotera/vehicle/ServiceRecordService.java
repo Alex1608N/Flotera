@@ -37,10 +37,9 @@ public class ServiceRecordService {
                 request.type()
         );
 
-        // Logica de sincronizare: Dacă e revizie, actualizăm și datele mașinii
-        // Aceasta asigură că ExpirationEngineService va calcula corect noile praguri
+        // Sincronizare revizie
         if (request.type() == ServiceType.ROUTINE_MAINTENANCE) {
-            // Doar dacă e mai nouă decât cea existentă (pentru a nu strica datele dacă adăugăm istoric vechi)
+            // Doar daca e mai noua
             if (vehicle.getLastMaintenanceDate() == null || request.date().isAfter(vehicle.getLastMaintenanceDate())) {
                 vehicle.setLastMaintenanceDate(request.date());
             }
@@ -48,7 +47,7 @@ public class ServiceRecordService {
                 vehicle.setLastMaintenanceKm(request.odometer());
             }
             
-            // Opțional: Actualizăm și odometrul total dacă înregistrarea e cea mai recentă
+            // Optional: Actualizam odometru
             if (request.odometer() > vehicle.getOdometer()) {
                 vehicle.setOdometer(request.odometer());
             }

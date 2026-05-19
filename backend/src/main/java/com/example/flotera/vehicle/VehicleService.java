@@ -33,11 +33,10 @@ public class VehicleService {
 
     public List<Vehicle> getVehiclesForUser(User user) {
         if (user.getRole() == com.example.flotera.user.Role.OWNER) {
-            // Un proprietar vede toate mașinile (sau doar ale lui, dacă am avea organizații)
-            // Momentan, presupunem că un proprietar vede tot ce a creat el
+            // Proprietar vede tot ce a creat
             return vehicleRepository.findByOwnerId(user.getId());
         } else {
-            // Un șofer vede DOAR mașina la care este asignat
+            // Sofer vede doar masina asignata
             return vehicleRepository.findByAssignedDriverId(user.getId());
         }
     }
@@ -45,14 +44,14 @@ public class VehicleService {
     @Transactional
     public Vehicle createVehicle(VehicleRequest request, String ownerId) {
         if (vehicleRepository.existsByLicensePlate(request.licensePlate())) {
-            throw new IllegalArgumentException("Numărul de înmatriculare " + request.licensePlate() + " există deja.");
+            throw new IllegalArgumentException("Numarul de inmatriculare " + request.licensePlate() + " exista deja.");
         }
         if (vehicleRepository.existsByVin(request.vin())) {
-            throw new IllegalArgumentException("Seria de șasiu " + request.vin() + " există deja.");
+            throw new IllegalArgumentException("Seria de sasiu " + request.vin() + " exista deja.");
         }
 
         User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul cu ID-ul " + ownerId + " nu există."));
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul cu ID-ul " + ownerId + " nu exista."));
 
         Vehicle vehicle = new Vehicle(
                 request.licensePlate(),
@@ -73,7 +72,7 @@ public class VehicleService {
 
         if (request.assignedDriverId() != null && !request.assignedDriverId().isEmpty()) {
             User driver = userRepository.findById(request.assignedDriverId())
-                    .orElseThrow(() -> new IllegalArgumentException("Șoferul nu a fost găsit."));
+                    .orElseThrow(() -> new IllegalArgumentException("Soferul nu a fost gasit."));
             vehicle.setAssignedDriver(driver);
         }
 
@@ -83,21 +82,21 @@ public class VehicleService {
     @Transactional
     public Vehicle updateVehicle(Long id, VehicleRequest request, String requesterId) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + id + " nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + id + " nu a fost gasit."));
 
         if (!vehicle.getOwner().getId().equals(requesterId)) {
-            throw new SecurityException("Nu aveți permisiunea de a modifica acest vehicul.");
+            throw new SecurityException("Nu aveti permisiunea de a modifica acest vehicul.");
         }
 
-        // Verificăm dacă noul număr de înmatriculare sau VIN-ul sunt deja folosite de ALTĂ mașină
+        // Verificam daca noul numar sau VIN sunt folosite de alta masina
         vehicleRepository.findByLicensePlate(request.licensePlate())
                 .ifPresent(v -> {
-                    if (!v.getId().equals(id)) throw new IllegalArgumentException("Numărul de înmatriculare există deja.");
+                    if (!v.getId().equals(id)) throw new IllegalArgumentException("Numarul de inmatriculare exista deja.");
                 });
         
         vehicleRepository.findByVin(request.vin())
                 .ifPresent(v -> {
-                    if (!v.getId().equals(id)) throw new IllegalArgumentException("Seria de șasiu există deja.");
+                    if (!v.getId().equals(id)) throw new IllegalArgumentException("Seria de sasiu exista deja.");
                 });
 
         vehicle.setLicensePlate(request.licensePlate());
@@ -118,7 +117,7 @@ public class VehicleService {
             vehicle.setAssignedDriver(null);
         } else {
             User driver = userRepository.findById(request.assignedDriverId())
-                    .orElseThrow(() -> new IllegalArgumentException("Șoferul nu a fost găsit."));
+                    .orElseThrow(() -> new IllegalArgumentException("Soferul nu a fost gasit."));
             vehicle.setAssignedDriver(driver);
         }
 
@@ -128,10 +127,10 @@ public class VehicleService {
     @Transactional
     public Vehicle updateVehicleDocuments(Long id, com.example.flotera.vehicle.dto.DocumentRequest request, String requesterId) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + id + " nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + id + " nu a fost gasit."));
 
         if (!vehicle.getOwner().getId().equals(requesterId)) {
-            throw new SecurityException("Nu aveți permisiunea de a modifica acest vehicul.");
+            throw new SecurityException("Nu aveti permisiunea de a modifica acest vehicul.");
         }
 
         vehicle.setItpExpiration(request.itpExpiration());
@@ -144,24 +143,24 @@ public class VehicleService {
     @Transactional
     public Vehicle updateOdometer(Long id, Long newOdometer, String requesterId) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + id + " nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + id + " nu a fost gasit."));
 
-        // Verificăm permisiunile (Proprietarul sau Șoferul asignat pot actualiza)
+        // Verificam permisiunile (Proprietar sau Sofer asignat)
         boolean isOwner = vehicle.getOwner().getId().equals(requesterId);
         boolean isAssignedDriver = vehicle.getAssignedDriver() != null && vehicle.getAssignedDriver().getId().equals(requesterId);
         
         if (!isOwner && !isAssignedDriver) {
-             throw new SecurityException("Nu aveți permisiunea de a modifica kilometrajul acestui vehicul.");
+             throw new SecurityException("Nu aveti permisiunea de a modifica kilometrajul acestui vehicul.");
         }
 
         if (newOdometer < vehicle.getOdometer()) {
-            throw new IllegalArgumentException("Noul kilometraj (" + newOdometer + ") nu poate fi mai mic decât cel actual (" + vehicle.getOdometer() + ").");
+            throw new IllegalArgumentException("Noul kilometraj (" + newOdometer + ") nu poate fi mai mic decat cel actual (" + vehicle.getOdometer() + ").");
         }
 
         vehicle.setOdometer(newOdometer);
         vehicle.setLastOdometerUpdate(java.time.LocalDate.now());
 
-        // Înregistrăm citirea în istoric
+        // Inregistram in istoric
         odometerReadingRepository.save(new OdometerReading(vehicle, newOdometer, java.time.LocalDate.now()));
 
         return vehicleRepository.save(vehicle);
@@ -169,14 +168,14 @@ public class VehicleService {
 
     public List<OdometerReading> getOdometerHistory(Long vehicleId, String requesterId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost gasit."));
         
-        // Verificăm accesul
+        // Verificam accesul
         boolean isOwner = vehicle.getOwner().getId().equals(requesterId);
         boolean isAssignedDriver = vehicle.getAssignedDriver() != null && vehicle.getAssignedDriver().getId().equals(requesterId);
         
         if (!isOwner && !isAssignedDriver) {
-            throw new SecurityException("Nu aveți permisiunea de a vedea istoricul acestui vehicul.");
+            throw new SecurityException("Nu aveti permisiunea de a vedea istoricul acestui vehicul.");
         }
 
         return odometerReadingRepository.findByVehicleIdOrderByReadingDateAsc(vehicleId);
@@ -185,10 +184,10 @@ public class VehicleService {
     @Transactional
     public void deleteVehicle(Long id, String requesterId) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + id + " nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + id + " nu a fost gasit."));
 
         if (!vehicle.getOwner().getId().equals(requesterId)) {
-            throw new SecurityException("Nu aveți permisiunea de a șterge acest vehicul.");
+            throw new SecurityException("Nu aveti permisiunea de a sterge acest vehicul.");
         }
 
         vehicleRepository.delete(vehicle);
@@ -197,14 +196,14 @@ public class VehicleService {
     @Transactional
     public String saveVehicleImage(Long vehicleId, MultipartFile file, String requesterId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + vehicleId + " nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul cu ID-ul " + vehicleId + " nu a fost gasit."));
 
-        // Verificăm dacă cel care face request-ul este proprietarul mașinii
+        // Verificam daca cel care face request-ul este proprietarul
         if (!vehicle.getOwner().getId().equals(requesterId)) {
-            throw new SecurityException("Nu aveți permisiunea de a modifica acest vehicul.");
+            throw new SecurityException("Nu aveti permisiunea de a modifica acest vehicul.");
         }
 
-        // Salvăm fișierul (serviciul returnează acum URL-ul complet)
+        // Salvam fisierul
         String imageUrl = storageService.store(file, "vehicles");
         
         vehicle.setImageUrl(imageUrl);
@@ -216,19 +215,19 @@ public class VehicleService {
     @Transactional
     public Vehicle assignDriver(Long vehicleId, String driverId, String requesterId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost gasit."));
 
         if (!vehicle.getOwner().getId().equals(requesterId)) {
-            throw new SecurityException("Doar proprietarul poate asigna un șofer.");
+            throw new SecurityException("Doar proprietarul poate asigna un sofer.");
         }
 
         if (driverId == null || driverId.trim().isEmpty()) {
             vehicle.setAssignedDriver(null);
         } else {
             User driver = userRepository.findById(driverId)
-                    .orElseThrow(() -> new IllegalArgumentException("Șoferul nu a fost găsit."));
+                    .orElseThrow(() -> new IllegalArgumentException("Soferul nu a fost gasit."));
             if (driver.getRole() != com.example.flotera.user.Role.DRIVER) {
-                throw new IllegalArgumentException("Utilizatorul selectat nu are rolul de ȘOFER.");
+                throw new IllegalArgumentException("Utilizatorul selectat nu are rolul de SOFER.");
             }
             vehicle.setAssignedDriver(driver);
         }

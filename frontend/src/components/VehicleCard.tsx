@@ -58,7 +58,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
 
   const { color: statusColor, text: statusText, glow: glowEffect } = statusConfig[vehicle.status] || statusConfig.OK;
 
-  // Calcul mentenanță
+  // Calcul mentenanta
   const kmSinceLast = vehicle.odometer - vehicle.lastMaintenanceKm;
   const maintenanceProgress = Math.min(Math.max((kmSinceLast / vehicle.maintenanceThresholdKm) * 100, 0), 100);
   const isMaintenanceClose = kmSinceLast >= vehicle.maintenanceThresholdKm - 500;
@@ -69,7 +69,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
       onClick={() => onEdit(vehicle)}
       className={`bg-white rounded-2xl overflow-hidden transition-all duration-300 group border cursor-pointer ${glowEffect}`}
     >
-      {/* Card Header (Image Area) */}
+      {/* Card Header */}
       <div className="aspect-video relative overflow-hidden bg-slate-50">
         {vehicle.imageUrl ? (
           <img 
@@ -80,11 +80,11 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
             <Car size={56} strokeWidth={1.5} />
-            <span className="text-xs font-medium uppercase tracking-wider mt-2">Fără poză</span>
+            <span className="text-xs font-medium uppercase tracking-wider mt-2">Fara poza</span>
           </div>
         )}
         
-        {/* Status Badge (The "Traffic Light" indicator) */}
+        {/* Status Badge */}
         <div className={`absolute top-3 right-3 px-3 py-1.5 ${statusColor} text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1.5`}>
           <span className="w-1.5 h-1.5 rounded-full bg-white/80 animate-pulse"></span>
           {statusText}
@@ -101,7 +101,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
           </div>
         )}
 
-        {/* Action Overlay (Appears on Hover) */}
+        {/* Action Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-end p-3 gap-2">
           <button 
             onClick={(e) => { e.stopPropagation(); onShowHistory?.(vehicle); }}
@@ -113,28 +113,28 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
           <button 
             onClick={(e) => { e.stopPropagation(); onReportIncident?.(vehicle); }}
             className="p-2 bg-white/20 hover:bg-orange-500 text-white rounded-lg backdrop-blur-sm transition-all"
-            title="Raportează problemă"
+            title="Raporteaza problema"
           >
             <AlertCircle size={18} />
           </button>
           <button 
             onClick={(e) => { e.stopPropagation(); onEdit(vehicle); }}
             className="p-2 bg-white/20 hover:bg-white text-white hover:text-blue-600 rounded-lg backdrop-blur-sm transition-all"
-            title="Editează vehicul"
+            title="Editeaza vehicul"
           >
             <Edit2 size={18} />
           </button>
           <button 
             onClick={(e) => { e.stopPropagation(); onDelete(vehicle.id); }}
             className="p-2 bg-white/20 hover:bg-red-500 text-white rounded-lg backdrop-blur-sm transition-all"
-            title="Șterge vehicul"
+            title="Sterge vehicul"
           >
             <Trash2 size={18} />
           </button>
         </div>
       </div>
       
-      {/* Card Body (Details Area) */}
+      {/* Card Body */}
       <div className="p-5">
         <div className="mb-4">
           <h3 className="font-bold text-xl text-slate-900 leading-tight">{vehicle.model}</h3>
@@ -143,7 +143,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
           </p>
         </div>
 
-        {/* Documente & Mentenanță Section */}
+        {/* Documente & Mentenanta */}
         <div className="space-y-3 mb-5 bg-slate-50 p-3 rounded-xl border border-slate-100">
           <div className="grid grid-cols-3 gap-2">
             {[
@@ -165,7 +165,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
             })}
           </div>
 
-          {/* Odometer & Maintenance Progress */}
+          {/* Odometru & Progres mentenanta */}
           <div className="pt-2 border-t border-slate-200">
             <div className="flex justify-between items-end mb-1">
               <div className="flex items-center gap-1.5 text-blue-600">
@@ -188,7 +188,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
               <div className="flex justify-between items-center mb-1">
                 <div className="flex items-center gap-1 text-slate-500">
                   <Wrench size={12} />
-                  <span className="text-[9px] font-bold uppercase">Următoarea Revizie</span>
+                  <span className="text-[9px] font-bold uppercase">Urmatoarea Revizie</span>
                 </div>
                 <span className="text-[9px] font-bold text-slate-500">{(vehicle.lastMaintenanceKm + vehicle.maintenanceThresholdKm).toLocaleString()} km</span>
               </div>
@@ -204,7 +204,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
 
         <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
           <div className="flex flex-col gap-1">
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Seria Șasiu</p>
+            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Seria Sasiu</p>
             <p className="text-xs font-mono font-medium text-slate-700 truncate w-24" title={vehicle.vin}>
               {vehicle.vin.substring(0, 8)}...
             </p>
@@ -212,7 +212,7 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
           
           <div className="flex items-center gap-3 text-right">
             <div className="flex flex-col">
-              <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Șofer Asignat</p>
+              <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sofer Asignat</p>
               <p className="text-sm font-bold text-slate-700 truncate w-24">
                 {vehicle.assignedDriverName || 'Neasignat'}
               </p>

@@ -88,7 +88,7 @@ public class UserController {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
         
-        // DOAR Alex poate folosi această simulare
+        // Simulation for admin
         if (!"alex@flotera.ro".equalsIgnoreCase(user.getEmail())) {
             throw new SecurityException("Nu aveți permisiunea de a folosi funcția de simulare rol.");
         }
@@ -159,7 +159,7 @@ public class UserController {
         User requester = userRepository.findById(requesterId)
                 .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
 
-        // DOAR Alex are voie să schimbe gradele altora
+        // Admin only role change
         if (!"alex@flotera.ro".equalsIgnoreCase(requester.getEmail())) {
             throw new SecurityException("Nu aveți permisiunea de a schimba rolurile altor utilizatori.");
         }
@@ -195,7 +195,7 @@ public class UserController {
 
     @GetMapping("/drivers")
     public ResponseEntity<List<UserDto>> getAllDrivers(@AuthenticationPrincipal Jwt jwt) {
-        // În viitor se poate filtra și după un organizationId
+        // TODO: filter by org
         List<User> drivers = userRepository.findByRole(Role.DRIVER);
         
         List<UserDto> dtos = drivers.stream()

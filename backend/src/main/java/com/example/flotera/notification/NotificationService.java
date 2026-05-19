@@ -60,7 +60,7 @@ public class NotificationService {
     }
 
     /**
-     * Rulează zilnic la ora 01:00 pentru a verifica expirările documentelor.
+     * Ruleaza zilnic la ora 01:00 pentru expirari documente.
      */
     @Scheduled(cron = "0 0 1 * * *")
     @Transactional
@@ -70,8 +70,7 @@ public class NotificationService {
         LocalDate warningThreshold = now.plusDays(30);
 
         for (Vehicle v : vehicles) {
-            // Găsim proprietarul pentru a-i trimite notificarea
-            // Într-o aplicație reală, am putea trimite și șoferului asignat
+            // Gasim proprietarul pentru notificare
             userRepository.findByRole(com.example.flotera.user.Role.OWNER).forEach(owner -> {
                 checkAndNotify(v, owner, v.getItpExpiration(), "ITP", now, warningThreshold);
                 checkAndNotify(v, owner, v.getRcaExpiration(), "RCA", now, warningThreshold);
@@ -95,7 +94,7 @@ public class NotificationService {
     }
 
     private void createIfNotExists(User user, String title, String message, NotificationType type) {
-        // Evităm duplicatele pentru aceeași zi/mesaj
+        // Evitam duplicatele
         List<Notification> existing = notificationRepository.findByUserOrderByCreatedAtDesc(user);
         boolean alreadyNotified = existing.stream()
                 .anyMatch(n -> n.getTitle().equals(title) && n.getCreatedAt().toLocalDate().equals(LocalDate.now()));

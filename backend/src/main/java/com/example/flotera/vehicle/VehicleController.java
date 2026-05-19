@@ -39,7 +39,7 @@ public class VehicleController {
     public ResponseEntity<List<VehicleResponse>> getAllVehicles(@AuthenticationPrincipal Jwt jwt) {
         String userId = jwt.getSubject();
         com.example.flotera.user.User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost gasit."));
         
         List<Vehicle> vehicles = vehicleService.getVehiclesForUser(user);
 
@@ -55,7 +55,7 @@ public class VehicleController {
             @Valid @RequestBody VehicleRequest request,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        // Sub-ul din JWT este ID-ul utilizatorului din Supabase
+        // Sub din JWT
         String ownerId = jwt.getSubject();
 
         Vehicle vehicle = vehicleService.createVehicle(request, ownerId);
