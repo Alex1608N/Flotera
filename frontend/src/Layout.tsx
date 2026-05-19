@@ -153,8 +153,8 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
               )}
             </div>
             <div className={`ml-3 text-left transition-all duration-300 ${!isSidebarOpen ? 'opacity-0 -translate-x-10 w-0' : 'opacity-100 translate-x-0'}`}>
-              <p className="text-sm font-black text-white truncate">{user?.name || 'Încărcare...'}</p>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{user?.role === 'OWNER' ? 'Proprietar' : 'Șofer'}</p>
+              <p className="text-sm font-black text-white truncate">{user?.name || 'Incarcare...'}</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{user?.role === 'OWNER' ? 'Proprietar' : 'Sofer'}</p>
             </div>
           </button>
           
@@ -179,7 +179,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
               <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tight capitalize">
                 {navigation.find(n => n.id === currentPage)?.name || 'Panou de Control'}
               </h2>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Sistem de monitorizare flotă</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Sistem de monitorizare flota</p>
             </div>
           </div>
           
