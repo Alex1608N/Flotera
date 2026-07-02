@@ -22,6 +22,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
     licensePlate: vehicleToEdit?.licensePlate || '',
     model: vehicleToEdit?.model || '',
     brand: vehicleToEdit?.brand || '',
+    color: vehicleToEdit?.color || '',
     year: vehicleToEdit?.year || new Date().getFullYear(),
     vin: vehicleToEdit?.vin || '',
     itpExpiration: vehicleToEdit?.itpExpiration || '',
@@ -159,6 +160,18 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                   value={formData.brand}
                   onChange={e => setFormData({...formData, brand: e.target.value})}
+                />
+              </div>
+
+              {/* Culoare */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Culoare (conform talon)</label>
+                <input
+                  type="text"
+                  placeholder="ex. ALB, NEGRU, ROSU METALIZAT"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow uppercase"
+                  value={formData.color}
+                  onChange={e => setFormData({...formData, color: e.target.value.toUpperCase()})}
                 />
               </div>
 

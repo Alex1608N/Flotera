@@ -10,6 +10,11 @@ public record VehicleRequest(
     @NotBlank(message = "Modelul este obligatoriu")
     String model,
 
+    @NotBlank(message = "Marca este obligatorie")
+    String brand,
+
+    String color,
+
     @NotNull(message = "Anul este obligatoriu")
     @Min(value = 1900, message = "Anul trebuie să fie minim 1900")
     @Max(value = 2100, message = "Anul trebuie să fie maxim 2100")

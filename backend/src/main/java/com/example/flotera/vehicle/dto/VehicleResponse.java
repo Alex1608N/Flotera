@@ -7,6 +7,8 @@ public record VehicleResponse(
         Long id,
         String licensePlate,
         String model,
+        String brand,
+        String color,
         Integer year,
         String vin,
         String ownerId,

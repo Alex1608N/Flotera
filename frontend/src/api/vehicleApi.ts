@@ -21,6 +21,7 @@ export interface Vehicle {
   licensePlate: string;
   model: string;
   brand: string;
+  color?: string | null;
   year: number;
   vin: string;
   assignedDriverId?: string | null;

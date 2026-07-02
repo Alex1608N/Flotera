@@ -156,6 +156,8 @@ public class VehicleController {
                 v.getId(),
                 v.getLicensePlate(),
                 v.getModel(),
+                v.getBrand(),
+                v.getColor(),
                 v.getYear(),
                 v.getVin(),
                 v.getOwner().getId(),

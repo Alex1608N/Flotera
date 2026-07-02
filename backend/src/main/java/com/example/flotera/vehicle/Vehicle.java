@@ -17,6 +17,12 @@ public class Vehicle {
     @Column(nullable = false)
     private String model;
 
+    @Column(nullable = false)
+    private String brand;
+
+    @Column(nullable = false)
+    private String color;
+
     @Column(name = "\"year\"", nullable = false)
     private Integer year;
 
@@ -67,9 +73,10 @@ public class Vehicle {
     public Vehicle() {
     }
 
-    public Vehicle(String licensePlate, String model, Integer year, String vin, User owner) {
+    public Vehicle(String licensePlate, String model, String brand, Integer year, String vin, User owner) {
         this.licensePlate = licensePlate;
         this.model = model;
+        this.brand = brand;
         this.year = year;
         this.vin = vin;
         this.owner = owner;
@@ -84,6 +91,12 @@ public class Vehicle {
 
     public String getModel() { return model; }
     public void setModel(String model) { this.model = model; }
+
+    public String getBrand() { return brand; }
+    public void setBrand(String brand) { this.brand = brand;}
+
+    public String getColor()  { return color;} 
+    public void setColor(String color) {this.color = color;}
 
     public Integer getYear() { return year; }
     public void setYear(Integer year) { this.year = year; }

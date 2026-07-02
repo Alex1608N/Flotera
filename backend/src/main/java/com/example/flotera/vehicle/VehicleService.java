@@ -56,11 +56,13 @@ public class VehicleService {
         Vehicle vehicle = new Vehicle(
                 request.licensePlate(),
                 request.model(),
+                request.brand(),
                 request.year(),
                 request.vin(),
                 owner
         );
         
+        vehicle.setColor(request.color());
         vehicle.setItpExpiration(request.itpExpiration());
         vehicle.setRcaExpiration(request.rcaExpiration());
         vehicle.setRovinietaExpiration(request.rovinietaExpiration());
@@ -101,6 +103,8 @@ public class VehicleService {
 
         vehicle.setLicensePlate(request.licensePlate());
         vehicle.setModel(request.model());
+        vehicle.setBrand(request.brand());
+        vehicle.setColor(request.color());
         vehicle.setYear(request.year());
         vehicle.setVin(request.vin());
         
