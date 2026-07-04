@@ -17,10 +17,10 @@ public class Vehicle {
     @Column(nullable = false)
     private String model;
 
-    @Column(nullable = false)
+    @Column
     private String brand;
 
-    @Column(nullable = false)
+    @Column
     private String color;
 
     @Column(name = "\"year\"", nullable = false)

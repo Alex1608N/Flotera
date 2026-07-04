@@ -59,10 +59,11 @@ class VehicleControllerTest {
         // Arrange
         String ownerId = "owner-id";
         User owner = new User(ownerId, "owner@test.com", "Owner Name", Role.OWNER);
-        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
         vehicle.setId(1L);
+        vehicle.setColor("ALB");
 
-        VehicleRequest request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
+        VehicleRequest request = new VehicleRequest("B-123-ABC", "Logan", "Dacia", "ALB", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
 
         // Mock security: load user from DB during JWT conversion
         when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
@@ -83,11 +84,12 @@ class VehicleControllerTest {
         // Arrange
         String ownerId = "owner-id";
         User owner = new User(ownerId, "owner@test.com", "Owner Name", Role.OWNER);
-        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
         vehicle.setId(1L);
+        vehicle.setColor("ALB");
 
         when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
-        when(vehicleService.getVehiclesByOwner(ownerId)).thenReturn(List.of(vehicle));
+        when(vehicleService.getVehiclesForUser(any(User.class))).thenReturn(List.of(vehicle));
 
         // Act & Assert
         mockMvc.perform(get("/api/vehicles")
@@ -122,7 +124,7 @@ class VehicleControllerTest {
         // Arrange
         String driverId = "driver-id";
         User driver = new User(driverId, "driver@test.com", "Driver Name", Role.DRIVER);
-        VehicleRequest request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
+        VehicleRequest request = new VehicleRequest("B-123-ABC", "Logan", "Dacia", "ALB", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
 
         when(userRepository.findById(driverId)).thenReturn(Optional.of(driver));
 
@@ -137,7 +139,7 @@ class VehicleControllerTest {
     @Test
     void createVehicle_ShouldReturnBadRequest_WhenValidationFails() throws Exception {
         // Arrange
-        VehicleRequest invalidRequest = new VehicleRequest("", "", 1800, "too-short", null, null, null, null, null, null, null, null);
+        VehicleRequest invalidRequest = new VehicleRequest("", "", "", "", 1800, "too-short", null, null, null, null, null, null, null, null);
 
         // Act & Assert
         mockMvc.perform(post("/api/vehicles")
@@ -152,10 +154,11 @@ class VehicleControllerTest {
         // Arrange
         String ownerId = "owner-id";
         User owner = new User(ownerId, "owner@test.com", "Owner Name", Role.OWNER);
-        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
         vehicle.setId(1L);
+        vehicle.setColor("ALB");
 
-        VehicleRequest request = new VehicleRequest("B-999-XYZ", "Dacia Logan", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
+        VehicleRequest request = new VehicleRequest("B-999-XYZ", "Logan", "Dacia", "ALB", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
 
         when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
         when(vehicleService.updateVehicle(eq(1L), any(VehicleRequest.class), eq(ownerId))).thenReturn(vehicle);
@@ -187,8 +190,9 @@ class VehicleControllerTest {
         // Arrange
         String ownerId = "owner-id";
         User owner = new User(ownerId, "owner@test.com", "Owner Name", Role.OWNER);
-        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
         vehicle.setId(1L);
+        vehicle.setColor("ALB");
 
         java.time.LocalDate itp = java.time.LocalDate.now().plusDays(30);
         com.example.flotera.vehicle.dto.DocumentRequest request = new com.example.flotera.vehicle.dto.DocumentRequest(itp, itp, itp);

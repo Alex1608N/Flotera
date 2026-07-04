@@ -47,7 +47,7 @@ class VehicleServiceTest {
     @BeforeEach
     void setUp() {
         owner = new User("owner-id", "owner@test.com", "Owner Name", Role.OWNER);
-        request = new VehicleRequest("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
+        request = new VehicleRequest("B-123-ABC", "Logan", "Dacia", "ALB", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
     }
 
     @Test
@@ -76,7 +76,8 @@ class VehicleServiceTest {
     @Test
     void getVehiclesByOwner_ShouldReturnList() {
         // Arrange
-        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
+        vehicle.setColor("ALB");
         when(vehicleRepository.findByOwnerId("owner-id")).thenReturn(List.of(vehicle));
 
         // Act
@@ -90,7 +91,8 @@ class VehicleServiceTest {
     @Test
     void saveVehicleImage_ShouldUpdateImageUrl_WhenOwnerRequests() {
         // Arrange
-        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
+        vehicle.setColor("ALB");
         vehicle.setId(1L);
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
         
@@ -101,17 +103,18 @@ class VehicleServiceTest {
         String result = vehicleService.saveVehicleImage(1L, file, "owner-id");
 
         // Assert
-        assertEquals("/api/uploads/vehicles/random-uuid.jpg", result);
-        assertEquals("/api/uploads/vehicles/random-uuid.jpg", vehicle.getImageUrl());
+        assertEquals("vehicles/random-uuid.jpg", result);
+        assertEquals("vehicles/random-uuid.jpg", vehicle.getImageUrl());
         verify(vehicleRepository, times(1)).save(vehicle);
     }
 
     @Test
     void updateVehicle_ShouldUpdate_WhenOwnerRequests() {
         // Arrange
-        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
         vehicle.setId(1L);
-        VehicleRequest newRequest = new VehicleRequest("B-999-XYZ", "Dacia Jogger", 2024, "99945678901234567", null, null, null, null, null, null, null, null);
+        vehicle.setColor("ALB");
+        VehicleRequest newRequest = new VehicleRequest("B-999-XYZ", "Dacia Jogger", "Dacia", "ALB", 2024, "99945678901234567", null, null, null, null, null, null, null, null);
 
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
         when(vehicleRepository.save(any())).thenReturn(vehicle);
@@ -128,7 +131,8 @@ class VehicleServiceTest {
     @Test
     void deleteVehicle_ShouldDelete_WhenOwnerRequests() {
         // Arrange
-        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
+        vehicle.setColor("ALB");
         vehicle.setId(1L);
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
 
@@ -142,7 +146,8 @@ class VehicleServiceTest {
     @Test
     void updateOdometer_ShouldUpdate_WhenValueIsGreater() {
         // Arrange
-        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
+        vehicle.setColor("ALB");
         vehicle.setId(1L);
         vehicle.setOdometer(1000L);
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
@@ -160,7 +165,8 @@ class VehicleServiceTest {
     @Test
     void updateOdometer_ShouldThrowException_WhenValueIsSmaller() {
         // Arrange
-        Vehicle vehicle = new Vehicle("B-123-ABC", "Dacia Logan", 2022, "12345678901234567", owner);
+        Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
+        vehicle.setColor("ALB");
         vehicle.setId(1L);
         vehicle.setOdometer(1000L);
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
