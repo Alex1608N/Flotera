@@ -24,6 +24,7 @@ export interface Vehicle {
   color?: string | null;
   year: number;
   vin: string;
+  fuelType?: string | null;
   assignedDriverId?: string | null;
   assignedDriverName?: string | null;
   assignedDriverProfilePictureUrl?: string | null;

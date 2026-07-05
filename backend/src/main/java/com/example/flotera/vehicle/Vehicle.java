@@ -23,6 +23,9 @@ public class Vehicle {
     @Column
     private String color;
 
+    @Column
+    private String fuelType;
+
     @Column(name = "\"year\"", nullable = false)
     private Integer year;
 
@@ -73,7 +76,7 @@ public class Vehicle {
     public Vehicle() {
     }
 
-    public Vehicle(String licensePlate, String model, String brand, Integer year, String vin, User owner) {
+    public Vehicle(String licensePlate, String model, String brand,  Integer year, String vin, User owner) {
         this.licensePlate = licensePlate;
         this.model = model;
         this.brand = brand;
@@ -97,6 +100,9 @@ public class Vehicle {
 
     public String getColor()  { return color;} 
     public void setColor(String color) {this.color = color;}
+
+    public String getFuelType() {return fuelType;}
+    public void setFuelType(String fuelType) {this.fuelType = fuelType;}
 
     public Integer getYear() { return year; }
     public void setYear(Integer year) { this.year = year; }

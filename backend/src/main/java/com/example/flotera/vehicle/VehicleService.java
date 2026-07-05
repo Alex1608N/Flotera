@@ -63,6 +63,7 @@ public class VehicleService {
         );
         
         vehicle.setColor(request.color());
+        vehicle.setFuelType(request.fuelType());
         vehicle.setItpExpiration(request.itpExpiration());
         vehicle.setRcaExpiration(request.rcaExpiration());
         vehicle.setRovinietaExpiration(request.rovinietaExpiration());
@@ -105,6 +106,7 @@ public class VehicleService {
         vehicle.setModel(request.model());
         vehicle.setBrand(request.brand());
         vehicle.setColor(request.color());
+        vehicle.setFuelType(request.fuelType());
         vehicle.setYear(request.year());
         vehicle.setVin(request.vin());
         

@@ -13,7 +13,11 @@ public record VehicleRequest(
     @NotBlank(message = "Marca este obligatorie")
     String brand,
 
+    @NotBlank(message = "Culoarea este obligatorie")
     String color,
+
+    @NotBlank(message = "Tipul de combustibil este obligatoriu")
+    String fuelType,
 
     @NotNull(message = "Anul este obligatoriu")
     @Min(value = 1900, message = "Anul trebuie să fie minim 1900")

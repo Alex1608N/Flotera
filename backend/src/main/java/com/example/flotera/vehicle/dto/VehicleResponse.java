@@ -9,6 +9,7 @@ public record VehicleResponse(
         String model,
         String brand,
         String color,
+        String fuelType,
         Integer year,
         String vin,
         String ownerId,

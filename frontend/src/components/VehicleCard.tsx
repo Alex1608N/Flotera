@@ -148,6 +148,11 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
                 · {vehicle.color}
               </span>
             )}
+            {vehicle.fuelType && (
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+                · {vehicle.fuelType}
+              </span>
+            )}
           </div>
         </div>
 

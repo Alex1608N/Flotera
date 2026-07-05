@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { vehicleApi } from '../api/vehicleApi';
 import { userApi } from '../api/userApi';
 import type { Vehicle } from '../api/vehicleApi';
-import { X, Upload, Car, User } from 'lucide-react';
+import { X, Upload, Car, User, Building } from 'lucide-react';
 import { getImageUrl } from '../api/imageUtils';
 
 interface VehicleFormProps {
@@ -23,6 +23,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
     model: vehicleToEdit?.model || '',
     brand: vehicleToEdit?.brand || '',
     color: vehicleToEdit?.color || '',
+    fuelType: vehicleToEdit?.fuelType || '',
     year: vehicleToEdit?.year || new Date().getFullYear(),
     vin: vehicleToEdit?.vin || '',
     itpExpiration: vehicleToEdit?.itpExpiration || '',
@@ -142,7 +143,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                   <input 
                     type="text" 
                     required
-                    placeholder="ex. Dacia Logan"
+                    placeholder="ex. Logan"
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                     value={formData.model}
                     onChange={e => setFormData({...formData, model: e.target.value})}
@@ -175,6 +176,23 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                 />
               </div>
 
+              {/* Tip Combustibil */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tip Combustibil</label>
+                <select
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                  value={formData.fuelType}
+                  onChange={e => setFormData({...formData, fuelType: e.target.value})}
+                >
+                  <option value="">-- Selectează combustibil --</option>
+                  <option value="BENZINA">Benzină</option>
+                  <option value="MOTORINA">Motorină</option>
+                  <option value="HIBRID">Hibrid</option>
+                  <option value="ELECTRIC">Electric</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nr. Înmatriculare</label>
                 <input 
@@ -198,7 +216,7 @@ export default function VehicleForm({ onClose, vehicleToEdit }: VehicleFormProps
                   value={formData.year}
                   onChange={e => setFormData({...formData, year: parseInt(e.target.value)})}
                 />
-              </div>
+              </div> 
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Seria de Șasiu (VIN)</label>
