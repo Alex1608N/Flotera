@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { vehicleApi } from '../api/vehicleApi';
 import { userApi } from '../api/userApi';
 import type { Vehicle } from '../api/vehicleApi';
-import { X, Upload, Car, User, Building } from 'lucide-react';
+import { X, Upload, Car, User } from 'lucide-react';
 import { getImageUrl } from '../api/imageUtils';
 
 interface VehicleFormProps {
