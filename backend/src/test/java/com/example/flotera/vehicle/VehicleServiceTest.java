@@ -47,7 +47,7 @@ class VehicleServiceTest {
     @BeforeEach
     void setUp() {
         owner = new User("owner-id", "owner@test.com", "Owner Name", Role.OWNER);
-        request = new VehicleRequest("B-123-ABC", "Logan", "Dacia", "ALB", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
+        request = new VehicleRequest("B-123-ABC", "Logan", "Dacia", "ALB", "BENZINA", 2022, "12345678901234567", null, null, null, null, null, null, null, null);
     }
 
     @Test
@@ -114,7 +114,7 @@ class VehicleServiceTest {
         Vehicle vehicle = new Vehicle("B-123-ABC", "Logan", "Dacia", 2022, "12345678901234567", owner);
         vehicle.setId(1L);
         vehicle.setColor("ALB");
-        VehicleRequest newRequest = new VehicleRequest("B-999-XYZ", "Dacia Jogger", "Dacia", "ALB", 2024, "99945678901234567", null, null, null, null, null, null, null, null);
+        VehicleRequest newRequest = new VehicleRequest("B-999-XYZ", "Dacia Jogger", "Dacia", "ALB", "BENZINA", 2024, "99945678901234567", null, null, null, null, null, null, null, null);
 
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
         when(vehicleRepository.save(any())).thenReturn(vehicle);
