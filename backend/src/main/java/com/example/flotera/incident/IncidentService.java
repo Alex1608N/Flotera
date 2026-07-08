@@ -10,6 +10,7 @@ import com.example.flotera.storage.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.example.flotera.notification.EmailService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,15 +23,18 @@ public class IncidentService {
     private final VehicleRepository vehicleRepository;
     private final StorageService storageService;
     private final ServiceRecordRepository serviceRecordRepository;
+    private final EmailService emailService;
 
     public IncidentService(IncidentRepository incidentRepository, 
                            VehicleRepository vehicleRepository, 
                            StorageService storageService,
-                           ServiceRecordRepository serviceRecordRepository) {
+                           ServiceRecordRepository serviceRecordRepository,
+                           EmailService emailService) {
         this.incidentRepository = incidentRepository;
         this.vehicleRepository = vehicleRepository;
         this.storageService = storageService;
         this.serviceRecordRepository = serviceRecordRepository;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -52,6 +56,11 @@ public class IncidentService {
 
         Incident saved = incidentRepository.save(incident);
 
+        emailService.sendEmail(vehicle.getOwner().getEmail(), "Incident Nou Raportat - " + vehicle.getLicensePlate(),
+        "Salut, " + vehicle.getOwner().getName() + "!\n\n" + "A fost raportat un incident nou pentru vehiculul " + vehicle.getBrand()
+        + " " + vehicle.getModel() + " (" + vehicle.getLicensePlate() + ").\n" + "Descriere incident: " + description
+    );
+    
         return mapToResponse(saved);
     }
 
