@@ -1,4 +1,4 @@
-package com.example.flotera.incident;
+ package com.example.flotera.incident;
 
 import com.example.flotera.incident.dto.IncidentResponse;
 import com.example.flotera.vehicle.ServiceRecord;
@@ -56,7 +56,7 @@ public class IncidentService {
 
         Incident saved = incidentRepository.save(incident);
 
-        emailService.sendEmail(vehicle.getOwner().getEmail(), "Incident Nou Raportat - " + vehicle.getLicensePlate(),
+        emailService.sendEmail("alexandrunegoita1608@yahoo.com", "Incident Nou Raportat - " + vehicle.getLicensePlate(),
         "Salut, " + vehicle.getOwner().getName() + "!\n\n" + "A fost raportat un incident nou pentru vehiculul " + vehicle.getBrand()
         + " " + vehicle.getModel() + " (" + vehicle.getLicensePlate() + ").\n" + "Descriere incident: " + description
     );
