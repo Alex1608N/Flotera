@@ -57,23 +57,21 @@ public class IncidentService {
         Incident saved = incidentRepository.save(incident);
 
         String emailContent = "Salut, " + vehicle.getOwner().getName() + ",\n\n" +
-                "Un nou incident a fost raportat pentru vehiculul cu numarulde inmatriculare " + vehicle.getLicensePlate() + ".\n" +
+                "Un nou incident a fost raportat pentru vehiculul cu numarul de inmatriculare " + vehicle.getLicensePlate() + ".\n" +
                 "Descriere: " + description + "\n\n" +
                 "Va rugam sa verificati detaliile in aplicatie.\n\n" +
                 "Multumim,\nEchipa Flotera";
-        
 
-    
+        if (incident.getImageUrl() != null) {
+            emailContent += "\n\n<p><strong>Imagine incident:</strong></p>"
+                    + "<img src=\"" + incident.getImageUrl() + "\" style=\"max-width: 100%; height: auto; border-radius: 8px;\" />";
+        }
 
-    if (incident.getImageUrl() != null) {
-        emailContent += "Imaginea incidentului poate fi vizualizata aici: " +  incident.getId() + "\" style=\"max-width: 100%; height: auto;\" />\n\n";
-    
-    };
-    emailService.sendEmail(
-        "alexandrunegoita1608@yahoo.com",
-        "Incident nou raportat - " + vehicle.getLicensePlate(),
-        emailContent
-    )
+        emailService.sendEmail(
+            "alexandrunegoita1608@yahoo.com",
+            "Incident nou raportat - " + vehicle.getLicensePlate(),
+            emailContent
+        );
         return mapToResponse(saved);
     }
 
