@@ -42,8 +42,10 @@ public class IncidentService {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost gasit."));
 
-        // Verificam permisiunile
-        if (!vehicle.getOwner().getId().equals(requesterId)) {
+        // Verificam permisiunile (Proprietar sau Sofer asignat)
+        boolean isOwner = vehicle.getOwner().getId().equals(requesterId);
+        boolean isAssignedDriver = vehicle.getAssignedDriver() != null && vehicle.getAssignedDriver().getId().equals(requesterId);
+        if (!isOwner && !isAssignedDriver) {
             throw new SecurityException("Nu aveti permisiunea de a raporta un incident pentru acest vehicul.");
         }
 
@@ -79,7 +81,9 @@ public class IncidentService {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost gasit."));
 
-        if (!vehicle.getOwner().getId().equals(requesterId)) {
+        boolean isOwner = vehicle.getOwner().getId().equals(requesterId);
+        boolean isAssignedDriver = vehicle.getAssignedDriver() != null && vehicle.getAssignedDriver().getId().equals(requesterId);
+        if (!isOwner && !isAssignedDriver) {
             throw new SecurityException("Nu aveti permisiunea de a vedea incidentele acestui vehicul.");
         }
 

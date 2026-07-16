@@ -141,7 +141,7 @@ export default function ProfilePage() {
                 </span>
                 
                 {/* Buton simulare schimbare rol - DOAR PENTRU ALEX */}
-                {user.email === 'alex@flotera.ro' && (
+                {user.email === 'alex.owner@flotera.ro' && (
                   <button 
                     onClick={() => toggleRoleMutation.mutate()}
                     disabled={toggleRoleMutation.isPending}

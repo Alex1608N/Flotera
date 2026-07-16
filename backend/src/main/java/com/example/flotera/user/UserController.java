@@ -89,7 +89,7 @@ public class UserController {
                 .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
         
         // Simulation for admin
-        if (!"alex@flotera.ro".equalsIgnoreCase(user.getEmail())) {
+        if (!"alex.owner@flotera.ro".equalsIgnoreCase(user.getEmail())) {
             throw new SecurityException("Nu aveți permisiunea de a folosi funcția de simulare rol.");
         }
         
@@ -160,7 +160,7 @@ public class UserController {
                 .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
 
         // Admin only role change
-        if (!"alex@flotera.ro".equalsIgnoreCase(requester.getEmail())) {
+        if (!"alex.owner@flotera.ro".equalsIgnoreCase(requester.getEmail())) {
             throw new SecurityException("Nu aveți permisiunea de a schimba rolurile altor utilizatori.");
         }
 

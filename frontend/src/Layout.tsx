@@ -52,6 +52,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'fleet', name: 'Flota Mea', icon: Car },
     { id: 'drivers', name: 'Management Echipă', icon: Users, role: 'OWNER' },
+    { id: 'notifications', name: 'Alerte & Notificări', icon: Bell, badge: unreadCount },
     { id: 'profile', name: 'Profilul Meu', icon: UserIcon },
   ];
 

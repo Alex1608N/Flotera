@@ -4,6 +4,7 @@ import { userApi } from './api/userApi';
 import { vehicleApi } from './api/vehicleApi';
 import { Upload, User as UserIcon, Users, Mail, CheckCircle2, AlertCircle, Car } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getImageUrl } from './api/imageUtils';
 
 export default function DriversPage() {
   const queryClient = useQueryClient();
@@ -178,7 +179,7 @@ export default function DriversPage() {
                 <div className="relative mb-6">
                   <div className="w-24 h-24 rounded-full bg-slate-50 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300">
                     {driver.profilePictureUrl ? (
-                      <img src={driver.profilePictureUrl.startsWith('http') ? driver.profilePictureUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}${driver.profilePictureUrl}`} alt={driver.name} className="w-full h-full object-cover" />
+                      <img src={getImageUrl(driver.profilePictureUrl)} alt={driver.name} className="w-full h-full object-cover" />
                     ) : (
                       <UserIcon size={40} className="text-slate-300" />
                     )}
@@ -216,7 +217,7 @@ export default function DriversPage() {
                     {driver.role === 'OWNER' ? 'Proprietar' : 'Șofer'}
                   </span>
                   
-                  {currentUser?.email === 'alex@flotera.ro' && driver.id !== currentUser.id && (
+                  {currentUser?.email === 'alex.owner@flotera.ro' && driver.id !== currentUser.id && (
                     <button
                       onClick={() => updateDriverRoleMutation.mutate({ 
                         userId: driver.id, 

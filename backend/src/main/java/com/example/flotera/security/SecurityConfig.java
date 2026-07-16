@@ -87,28 +87,14 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return token -> {
-            try {
-                // Fara validare semnatura local
-                SignedJWT signedJWT = SignedJWT.parse(token);
-                java.util.Map<String, Object> claims = new java.util.HashMap<>(signedJWT.getJWTClaimsSet().getClaims());
-                
-                // Instant conversion
-                if (claims.get("iat") instanceof java.util.Date date) {
-                    claims.put("iat", date.toInstant());
-                }
-                if (claims.get("exp") instanceof java.util.Date date) {
-                    claims.put("exp", date.toInstant());
-                }
-
-                return Jwt.withTokenValue(token)
-                        .header("alg", "HS256")
-                        .claims(c -> c.putAll(claims))
-                        .build();
-            } catch (Exception e) {
-                throw new JwtException("Token invalid: " + e.getMessage(), e);
-            }
-        };
+        try {
+            byte[] keyBytes = java.util.Base64.getDecoder().decode(jwtSecret);
+            javax.crypto.spec.SecretKeySpec secretKey = new javax.crypto.spec.SecretKeySpec(keyBytes, "HMACSHA256");
+            return NimbusJwtDecoder.withSecretKey(secretKey).build();
+        } catch (Exception e) {
+            javax.crypto.spec.SecretKeySpec secretKey = new javax.crypto.spec.SecretKeySpec(jwtSecret.getBytes(), "HMACSHA256");
+            return NimbusJwtDecoder.withSecretKey(secretKey).build();
+        }
     }
 
     @Bean
@@ -139,7 +125,7 @@ public class SecurityConfig {
                 Role defaultRole = Role.DRIVER;
                 
                 // Special case for admin
-                if ("alex@flotera.ro".equalsIgnoreCase(actualEmail)) {
+                if ("alex.owner@flotera.ro".equalsIgnoreCase(actualEmail)) {
                     defaultRole = Role.OWNER;
                 }
                 

@@ -7,6 +7,7 @@ import FleetPage from './FleetPage'
 import DashboardPage from './DashboardPage'
 import ProfilePage from './ProfilePage'
 import DriversPage from './DriversPage'
+import NotificationsPage from './NotificationsPage'
 import VehicleForm from './components/VehicleForm'
 import IncidentList from './components/IncidentList'
 import IncidentForm from './components/IncidentForm'
@@ -91,6 +92,7 @@ function App() {
         />
       )}
       {currentPage === 'drivers' && <DriversPage />}
+      {currentPage === 'notifications' && <NotificationsPage />}
       {currentPage === 'profile' && <ProfilePage />}
 
       {isFormOpen && (
