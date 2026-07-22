@@ -57,7 +57,7 @@ public class IncidentService {
         Incident saved = incidentRepository.save(incident);
 
         String emailContent = "Salut, " + vehicle.getOwner().getName() + ",\n\n" +
-                "Un nou incident a fost raportat pentru vehiculul cu ID-ul " + vehicle.get + ".\n" +
+                "Un nou incident a fost raportat pentru vehiculul cu numarul de inmatriculare " + vehicle.getLicensePlate() + ".\n" +
                 "Descriere: " + description + "\n\n" +
                 "Va rugam sa verificati detaliile in aplicatie.\n\n" +
                 "Multumim,\nEchipa Flotera";
@@ -73,7 +73,7 @@ public class IncidentService {
         "alexandrunegoita1608@yahoo.com",
         "Incident nou raportat - " + vehicle.getLicensePlate(),
         emailContent
-    )
+    );
         return mapToResponse(saved);
     }
 
