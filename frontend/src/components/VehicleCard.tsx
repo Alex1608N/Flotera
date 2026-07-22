@@ -137,23 +137,11 @@ export default function VehicleCard({ vehicle, onEdit, onDelete, onShowIncidents
       {/* Card Body */}
       <div className="p-5">
         <div className="mb-4">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">{vehicle.brand}</p>
           <h3 className="font-bold text-xl text-slate-900 leading-tight">{vehicle.model}</h3>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="text-sm font-mono text-blue-600 font-bold tracking-wider">
-              {vehicle.licensePlate}
-            </p>
-            {vehicle.color && (
-              <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                · {vehicle.color}
-              </span>
-            )}
-            {vehicle.fuelType && (
-              <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                · {vehicle.fuelType}
-              </span>
-            )}
-          </div>
+          <p className="text-lg font-bold text-slate-700">{vehicle.brand}</p>
+          <p className="text-sm font-mono text-blue-600 font-bold tracking-wider mt-1">
+            {vehicle.licensePlate}
+          </p>
         </div>
 
         {/* Documente & Mentenanta */}

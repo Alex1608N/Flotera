@@ -18,6 +18,8 @@ import { getImageUrl } from './api/imageUtils';
 
 import NotificationDrawer from './components/NotificationDrawer';
 
+import AiChatWidget from './components/AiChatWidget';
+
 interface LayoutProps {
   children: React.ReactNode;
   currentPage: string;
@@ -67,6 +69,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
         isOpen={isNotificationDrawerOpen} 
         onClose={() => setIsNotificationDrawerOpen(false)} 
       />
+      <AiChatWidget/>
       
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (

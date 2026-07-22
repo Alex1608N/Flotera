@@ -42,10 +42,8 @@ public class IncidentService {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost gasit."));
 
-        // Verificam permisiunile (Proprietar sau Sofer asignat)
-        boolean isOwner = vehicle.getOwner().getId().equals(requesterId);
-        boolean isAssignedDriver = vehicle.getAssignedDriver() != null && vehicle.getAssignedDriver().getId().equals(requesterId);
-        if (!isOwner && !isAssignedDriver) {
+        // Verificam permisiunile
+        if (!vehicle.getOwner().getId().equals(requesterId)) {
             throw new SecurityException("Nu aveti permisiunea de a raporta un incident pentru acest vehicul.");
         }
 
@@ -59,21 +57,23 @@ public class IncidentService {
         Incident saved = incidentRepository.save(incident);
 
         String emailContent = "Salut, " + vehicle.getOwner().getName() + ",\n\n" +
-                "Un nou incident a fost raportat pentru vehiculul cu numarul de inmatriculare " + vehicle.getLicensePlate() + ".\n" +
+                "Un nou incident a fost raportat pentru vehiculul cu ID-ul " + vehicle.get + ".\n" +
                 "Descriere: " + description + "\n\n" +
                 "Va rugam sa verificati detaliile in aplicatie.\n\n" +
                 "Multumim,\nEchipa Flotera";
+        
 
-        if (incident.getImageUrl() != null) {
-            emailContent += "\n\n<p><strong>Imagine incident:</strong></p>"
-                    + "<img src=\"" + incident.getImageUrl() + "\" style=\"max-width: 100%; height: auto; border-radius: 8px;\" />";
-        }
+    
 
-        emailService.sendEmail(
-            "alexandrunegoita1608@yahoo.com",
-            "Incident nou raportat - " + vehicle.getLicensePlate(),
-            emailContent
-        );
+    if (incident.getImageUrl() != null) {
+        emailContent += "Imaginea incidentului poate fi vizualizata aici: " +  incident.getId() + "\" style=\"max-width: 100%; height: auto;\" />\n\n";
+    
+    };
+    emailService.sendEmail(
+        "alexandrunegoita1608@yahoo.com",
+        "Incident nou raportat - " + vehicle.getLicensePlate(),
+        emailContent
+    )
         return mapToResponse(saved);
     }
 
@@ -81,9 +81,7 @@ public class IncidentService {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("Vehiculul nu a fost gasit."));
 
-        boolean isOwner = vehicle.getOwner().getId().equals(requesterId);
-        boolean isAssignedDriver = vehicle.getAssignedDriver() != null && vehicle.getAssignedDriver().getId().equals(requesterId);
-        if (!isOwner && !isAssignedDriver) {
+        if (!vehicle.getOwner().getId().equals(requesterId)) {
             throw new SecurityException("Nu aveti permisiunea de a vedea incidentele acestui vehicul.");
         }
 
