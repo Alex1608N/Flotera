@@ -87,14 +87,8 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        try {
-            byte[] keyBytes = java.util.Base64.getDecoder().decode(jwtSecret);
-            javax.crypto.spec.SecretKeySpec secretKey = new javax.crypto.spec.SecretKeySpec(keyBytes, "HMACSHA256");
-            return NimbusJwtDecoder.withSecretKey(secretKey).build();
-        } catch (Exception e) {
-            javax.crypto.spec.SecretKeySpec secretKey = new javax.crypto.spec.SecretKeySpec(jwtSecret.getBytes(), "HMACSHA256");
-            return NimbusJwtDecoder.withSecretKey(secretKey).build();
-        }
+        javax.crypto.spec.SecretKeySpec secretKey = new javax.crypto.spec.SecretKeySpec(jwtSecret.getBytes(), "HMACSHA256");
+        return NimbusJwtDecoder.withSecretKey(secretKey).build();
     }
 
     @Bean
