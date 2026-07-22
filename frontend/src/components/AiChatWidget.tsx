@@ -10,7 +10,7 @@ import { useState, useRef, useEffect } from 'react';
     export default function AiChatWidget() {                                                                                                
         const [isOpen, setIsOpen] = useState(false);                                                                                        
         const [messages, setMessages] = useState<Message[]>([                                                                               
-            { sender: 'bot', text: 'Salut! Sunt asistentul AI Flotera. Cu ce te pot ajuta azi?' }                                           
+            { sender: 'bot', text: 'Salut! Sunt asistentul AI Flotera. Cu ce te pot ajuta astazi?' }                                           
         ]);                                                                                                                                 
         const [input, setInput] = useState('');                                                                                             
         const [isLoading, setIsLoading] = useState(false);                                                                                  
