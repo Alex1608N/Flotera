@@ -87,6 +87,29 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
+        // Dacă cheia este cea implicită locală, decodificăm fără validarea semnăturii pentru a facilita dezvoltarea locală
+        if ("KO/VVdfYjGhbFc5BGswC9HR8SeDtj18XFA7CABReH2+d7dDl6mc9Vjc7WYapF75D06M+jBRcswLjld3Ajxp6sA==".equals(jwtSecret)) {
+            return token -> {
+                try {
+                    SignedJWT signedJWT = SignedJWT.parse(token);
+                    java.util.Map<String, Object> claims = new java.util.HashMap<>(signedJWT.getJWTClaimsSet().getClaims());
+                    if (claims.get("iat") instanceof java.util.Date date) {
+                        claims.put("iat", date.toInstant());
+                    }
+                    if (claims.get("exp") instanceof java.util.Date date) {
+                        claims.put("exp", date.toInstant());
+                    }
+                    return Jwt.withTokenValue(token)
+                            .header("alg", "HS256")
+                            .claims(c -> c.putAll(claims))
+                            .build();
+                } catch (Exception e) {
+                    throw new org.springframework.security.oauth2.jwt.JwtException("Token invalid: " + e.getMessage(), e);
+                }
+            };
+        }
+
+        // În producție, validăm semnătura în mod securizat folosind cheia configurată
         try {
             byte[] keyBytes = java.util.Base64.getDecoder().decode(jwtSecret);
             javax.crypto.spec.SecretKeySpec secretKey = new javax.crypto.spec.SecretKeySpec(keyBytes, "HMACSHA256");
