@@ -1,45 +1,45 @@
 import { useState, useRef, useEffect } from 'react';                                                                             
-    import axios from 'axios';                                                                                                              
-    import { MessageSquare, X, Send, Bot } from 'lucide-react';                                                                             
-                                                                                                                                            
-    interface Message {                                                                                                                     
-        sender: 'user' | 'bot';                                                                                                             
-        text: string;                                                                                                                       
-    }                                                                                                                                       
-                                                                                                                                            
-    export default function AiChatWidget() {                                                                                                
-        const [isOpen, setIsOpen] = useState(false);                                                                                        
-        const [messages, setMessages] = useState<Message[]>([                                                                               
-            { sender: 'bot', text: 'Salut! Sunt asistentul AI Flotera. Cu ce te pot ajuta astazi?' }                                           
-        ]);                                                                                                                                 
-        const [input, setInput] = useState('');                                                                                             
-        const [isLoading, setIsLoading] = useState(false);                                                                                  
-                                                                                                                                            
-        // Ref pentru a face scroll automat la ultimul mesaj                                                                                
-        const messagesEndRef = useRef<HTMLDivElement>(null);                                                                                
-                                                                                                                                            
-        const scrollToBottom = () => {                                                                                                      
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });                                                                 
-        };                                                                                                                                  
-                                                                                                                                            
-        // Apelăm scroll-ul automat de fiecare dată când se schimbă lista de mesaje sau starea de încărcare                                 
-        useEffect(() => {                                                                                                                   
-            scrollToBottom();                                                                                                               
-        }, [messages, isLoading]);                                                                                                          
-                                                                                                                                            
-        const handleSend = async () => {                                                                                                    
-            if (!input.trim() || isLoading) return;                                                                                         
-                                                                                                                                            
-            const userText = input;                                                                                                         
-            setInput('');                                                                                                                   
-                                                                                                                                            
-            setMessages((prev) => [...prev, { sender: 'user', text: userText }]);                                                           
-            setIsLoading(true);                                                                                                             
-                                                                                                                                            
-            try {                                                                                                                           
-                const response = await axios.post('http://localhost:8080/api/ai/chat', {                                                    
-                    message: userText                                                                                                       
-                });                                                                                                                         
+import api from '../api/vehicleApi';                                                                                                              
+import { MessageSquare, X, Send, Bot } from 'lucide-react';                                                                             
+
+interface Message {                                                                                                                     
+    sender: 'user' | 'bot';                                                                                                             
+    text: string;                                                                                                                       
+}                                                                                                                                       
+
+export default function AiChatWidget() {                                                                                                
+    const [isOpen, setIsOpen] = useState(false);                                                                                        
+    const [messages, setMessages] = useState<Message[]>([                                                                               
+        { sender: 'bot', text: 'Salut! Sunt asistentul AI Flotera. Cu ce te pot ajuta astazi?' }                                           
+    ]);                                                                                                                                 
+    const [input, setInput] = useState('');                                                                                             
+    const [isLoading, setIsLoading] = useState(false);                                                                                  
+
+    // Ref pentru a face scroll automat la ultimul mesaj                                                                                
+    const messagesEndRef = useRef<HTMLDivElement>(null);                                                                                
+
+    const scrollToBottom = () => {                                                                                                      
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });                                                                 
+    };                                                                                                                                  
+
+    // Apelăm scroll-ul automat de fiecare dată când se schimbă lista de mesaje sau starea de încărcare                                 
+    useEffect(() => {                                                                                                                   
+        scrollToBottom();                                                                                                               
+    }, [messages, isLoading]);                                                                                                          
+
+    const handleSend = async () => {                                                                                                    
+        if (!input.trim() || isLoading) return;                                                                                         
+
+        const userText = input;                                                                                                         
+        setInput('');                                                                                                                   
+
+        setMessages((prev) => [...prev, { sender: 'user', text: userText }]);                                                           
+        setIsLoading(true);                                                                                                             
+
+        try {                                                                                                                           
+            const response = await api.post('/ai/chat', {                                                    
+                message: userText                                                                                                       
+            });                                                                                                                         
                                                                                                                                             
                 setMessages((prev) => [...prev, { sender: 'bot', text: response.data }]);                                                   
             } catch (error) {                                                                                                               
